@@ -75,6 +75,7 @@
       font-size: 1em;
       width: 100%;
       box-sizing: border-box;
+      margin-bottom: 0.75em; /* Added margin for consistency */
     }
     #sections-container {
       margin: 1em 0;
@@ -194,6 +195,40 @@
       font-size: 0.95em;
     }
 
+    /* --- Transpose Controls --- */
+    .transpose-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75em;
+      margin-top: 1em;
+      padding: 0.5em;
+      background-color: #eaf6ff;
+      border-radius: var(--border-radius);
+      flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    }
+    .transpose-controls button {
+      padding: 0.5em 1em;
+      font-size: 0.9em;
+      border-radius: 5px;
+      border: 1px solid var(--border-color);
+      background-color: var(--white-bg);
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .transpose-controls button:hover {
+      background-color: #f0f0f0;
+    }
+    .transpose-key-display {
+      font-weight: bold;
+      color: var(--primary-color);
+      min-width: 3em; /* Ensure it doesn't shrink too much */
+      text-align: center;
+    }
+    .transpose-label {
+      font-size: 0.9em;
+      color: var(--subtle-text);
+    }
+
     /* --- Edit Form --- */
     .edit-form {
       display: none;
@@ -211,6 +246,7 @@
       font-size: 0.9em;
       width: 100%;
       box-sizing: border-box;
+      margin-bottom: 0.75em; /* Added margin for consistency */
     }
     .edit-section-field {
       display: grid;
@@ -267,6 +303,7 @@
     <form class="add-song-form">
       <h2>Add New Song</h2>
       <input type="text" id="song-title" placeholder="Song Title (e.g., All of Me)" required />
+      <input type="text" id="song-standard-key" placeholder="Standard Key (e.g., C, G, Bb)" />
       <div id="sections-container"></div>
       <div class="help-text">
         Tip: Use "-" to represent the same chord continuing for another bar (e.g., "Cmaj7 - Dm7 G7")
@@ -282,36 +319,190 @@
 
   <div class="song-list" id="song-list"></div>
 
-  <script>
-// Chord root note mapping (C=0, C#/Db=1, ..., B=11)
-const NOTE_TO_NUM = {
-  'C': 0, 'B#': 0,
-  'C#': 1, 'Db': 1,
-  'D': 2,
-  'D#': 3, 'Eb': 3,
-  'E': 4, 'Fb': 4,
-  'F': 5, 'E#': 5,
-  'F#': 6, 'Gb': 6,
-  'G': 7,
-  'G#': 8, 'Ab': 8,
-  'A': 9,
-  'A#': 10, 'Bb': 10,
-  'B': 11, 'Cb': 11
-};
-
-function parseChordRoot(chord) {
-  // Handle "-" for same chord continuation
-  if (chord === '-') return '-';
-
-  // Extract root (e.g. C, D#, Eb, F, etc.)
-  const match = chord.match(/^([A-G](?:#|b)?)/i);
-  if (!match) return null;
-  let root = match[1].toUpperCase();
-  // Normalize flats/sharps
-  if (root.length === 2 && root[1] === 'B') root = root[0] + 'b';
-  if (root.length === 2 && root[1] === '#') root = root[0] + '#';
-  return NOTE_TO_NUM[root] !== undefined ? NOTE_TO_NUM[root] : null;
-}
+  <script>// Chord root note mapping (C=0, C#/Db=1, ..., B=11)
+	const NOTE_TO_NUM = {
+	  'C': 0, 'B#': 0, // B# enharmonically C
+	  'C#': 1, 'Db': 1,
+	  'D': 2,
+	  'D#': 3, 'Eb': 3,
+	  'E': 4, 'Fb': 4, // Fb enharmonically E
+	  'F': 5, 'E#': 5, // E# enharmonically F
+	  'F#': 6, 'Gb': 6,
+	  'G': 7,
+	  'G#': 8, 'Ab': 8,
+	  'A': 9,
+	  'A#': 10, 'Bb': 10,
+	  'B': 11, 'Cb': 11 // Cb enharmonically B
+	};
+	
+	// Mappings from numeric value back to note string, preferring sharps for up and flats for down
+	const NUM_TO_NOTE_SHARP = [
+	  'C', 'C#', 'D', 'D#', 'E', 'F',
+	  'F#', 'G', 'G#', 'A', 'A#', 'B'
+	];
+	
+	const NUM_TO_NOTE_FLAT = [
+	  'C', 'Db', 'D', 'Eb', 'E', 'F',
+	  'Gb', 'G', 'Ab', 'A', 'Bb', 'B'
+	];
+	
+	// Helper to normalize key strings for lookup in NOTE_TO_NUM
+	function formatKeyForLookup(keyString) {
+	  if (!keyString) return '';
+	  return keyString.charAt(0).toUpperCase() + keyString.slice(1);
+	}
+	
+	// Helper to calculate new key name for display, preferring common flat spellings where appropriate
+	const calculateNewKeyName = (baseKeyNum, semitones) => {
+		const newKeyNum = (baseKeyNum + semitones % 12 + 12) % 12;
+		const sharpNote = NUM_TO_NOTE_SHARP[newKeyNum];
+		const flatNote = NUM_TO_NOTE_FLAT[newKeyNum];
+		
+		// Prefer common flat names like Bb, Eb, Ab, Db, Gb for display
+		const commonFlats = ['Bb', 'Eb', 'Ab', 'Db', 'Gb'];
+		if (commonFlats.includes(flatNote)) {
+			return flatNote;
+		}
+		return sharpNote; // Otherwise, prefer sharp name
+	};
+	
+	/**
+	 * Analyzes a chord collection to determine the preferred notation (sharp vs flat)
+	 * based on the existing chord symbols in the collection.
+	 * @param {string[]} chords Array of chord strings to analyze
+	 * @returns {string} 'flat' if flats are predominant, 'sharp' otherwise
+	 */
+	function analyzeNotationPreference(chords) {
+	  let flatCount = 0;
+	  let sharpCount = 0;
+	  
+	  chords.forEach(chord => {
+		if (chord === '-') return; // Skip continuation markers
+		
+		const match = chord.match(/^([A-G][#b]?)/i);
+		if (match) {
+		  const root = match[1];
+		  if (root.includes('b')) flatCount++;
+		  if (root.includes('#')) sharpCount++;
+		}
+	  });
+	  
+	  return flatCount > sharpCount ? 'flat' : 'sharp';
+	}
+	
+	/**
+	 * Determines the preferred notation for a transposed chord based on context
+	 * @param {string} originalChord The original chord before transposition
+	 * @param {number} targetRootNum The numeric value of the target root (0-11)
+	 * @param {number} semitones The transposition interval
+	 * @param {string} contextPreference Overall preference from chord collection analysis
+	 * @returns {string} The preferred root note for the transposed chord
+	 */
+	function getPreferredTransposedRoot(originalChord, targetRootNum, semitones, contextPreference = 'sharp') {
+	  // Parse original chord to understand its notation preference
+	  const originalMatch = originalChord.match(/^([A-G][#b]?)/i);
+	  if (!originalMatch) return NUM_TO_NOTE_SHARP[targetRootNum];
+	  
+	  const originalRoot = originalMatch[1];
+	  const originalUsesFlat = originalRoot.includes('b');
+	  const originalUsesSharp = originalRoot.includes('#');
+	  
+	  const sharpNote = NUM_TO_NOTE_SHARP[targetRootNum];
+	  const flatNote = NUM_TO_NOTE_FLAT[targetRootNum];
+	  
+	  // If the target note is natural (no accidental needed), return it
+	  if (sharpNote === flatNote) return sharpNote;
+	  
+	  // Key signature and circle of fifths considerations
+	  // Common flat keys: F, Bb, Eb, Ab, Db, Gb, Cb
+	  // Common sharp keys: G, D, A, E, B, F#, C#
+	  const flatKeyContext = ['F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb'];
+	  const sharpKeyContext = ['G', 'D', 'A', 'E', 'B', 'F#', 'C#'];
+	  
+	  // If original chord used flats, try to maintain flat notation where musically sensible
+	  if (originalUsesFlat) {
+		// Prefer flats for common flat key centers
+		if (['Db', 'Eb', 'Ab', 'Bb', 'Gb'].includes(flatNote)) {
+		  return flatNote;
+		}
+	  }
+	  
+	  // If original chord used sharps, try to maintain sharp notation where musically sensible  
+	  if (originalUsesSharp) {
+		// Prefer sharps for common sharp key centers
+		if (['C#', 'D#', 'F#', 'G#', 'A#'].includes(sharpNote)) {
+		  return sharpNote;
+		}
+	  }
+	  
+	  // Fall back to context preference from the overall chord collection
+	  if (contextPreference === 'flat' && ['Db', 'Eb', 'Ab', 'Bb', 'Gb'].includes(flatNote)) {
+		return flatNote;
+	  }
+	  
+	  // Default to sharp notation for most cases
+	  return sharpNote;
+	}
+	
+	function parseChordRoot(chord) {
+	  // Handle "-" for same chord continuation
+	  if (chord === '-') return '-';
+	
+	  // Extract root with improved regex that handles edge cases
+	  const match = chord.match(/^([A-G](?:#|b)?)/i);
+	  if (!match) return null;
+	  
+	  let root = match[1];
+	  // Normalize the root note formatting
+	  root = root.charAt(0).toUpperCase() + root.slice(1).toLowerCase();
+	  
+	  return NOTE_TO_NUM[root] !== undefined ? NOTE_TO_NUM[root] : null;
+	}
+	
+	/**
+	 * Transposes a chord by a given number of semitones using intelligent notation preference.
+	 * @param {string} chord The chord string (e.g., "Cmaj7", "Dm7", "G7b9").
+	 * @param {number} semitones The number of semitones to transpose by (+ for up, - for down).
+	 * @param {string} [contextPreference='sharp'] Overall notation preference from analyzing chord collection.
+	 * @returns {string} The transposed chord string.
+	 */
+	function transposeChord(chord, semitones, contextPreference = 'sharp') {
+	  if (chord === '-') return '-';
+	
+	  // Improved regex to capture root and suffix more reliably
+	  const match = chord.match(/^([A-G][#b]?)(.*)$/i);
+	  if (!match) return chord; // Return original if not a recognized chord format
+	
+	  let root = match[1];
+	  const suffix = match[2];
+	  
+	  // Normalize root note formatting
+	  root = root.charAt(0).toUpperCase() + root.slice(1).toLowerCase();
+	
+	  let rootNum = NOTE_TO_NUM[root];
+	  if (rootNum === undefined) return chord;
+	
+	  // Calculate target root number
+	  const targetRootNum = (rootNum + (semitones % 12) + 12) % 12;
+	  
+	  // Get the preferred notation for the transposed chord
+	  const newRoot = getPreferredTransposedRoot(chord, targetRootNum, semitones, contextPreference);
+	  
+	  return newRoot + suffix;
+	}
+	
+	/**
+	 * Transposes an array of chords with consistent notation preference.
+	 * @param {string[]} chords Array of chord strings to transpose.
+	 * @param {number} semitones Number of semitones to transpose by.
+	 * @returns {string[]} Array of transposed chord strings.
+	 */
+	function transposeChordProgression(chords, semitones) {
+	  // Analyze the chord collection to determine overall notation preference
+	  const contextPreference = analyzeNotationPreference(chords);
+	  
+	  return chords.map(chord => transposeChord(chord, semitones, contextPreference));
+	}
 
 /**
  * Calculates chromatic intervals (mod 12) between a sequence of base notes.
@@ -497,9 +688,15 @@ document.getElementById('delete-all-btn').onclick = function() {
   // Using custom modal instead of alert/confirm
   showConfirmationModal('Are you sure you want to delete all songs? This cannot be undone.', () => {
     localStorage.clear(); // Clears all data in localStorage for this origin
+    // Clear all song transpose states as well
+    songTransposeStates.clear();
     renderSongs(); // Re-render to show empty state
   });
 };
+
+// Global map to store transpose state for each song (indexed by its original index in the songs array)
+// Stores: { semitones: number, currentKey: string, originalKey: string, isValid: boolean, originalKeyNum: number|undefined }
+const songTransposeStates = new Map(); 
 
 function renderSongs() {
   const songList = document.getElementById('song-list');
@@ -514,6 +711,43 @@ function renderSongs() {
   }
 
   songs.forEach((song, idx) => {
+    // Initialize transpose state if not already present
+    if (!songTransposeStates.has(idx)) {
+      const originalKeyInput = song.standardKey ? song.standardKey.trim() : '';
+      let initialOriginalKey = originalKeyInput;
+      let initialCurrentKey = originalKeyInput;
+      let initialSemitones = 0;
+      let isValidOriginalKey = true;
+
+      // Use the new helper for lookup
+      const lookupKey = formatKeyForLookup(originalKeyInput);
+      const originalKeyNum = NOTE_TO_NUM[lookupKey];
+
+      if (originalKeyInput && originalKeyNum === undefined) {
+          // If a key was provided but not recognized
+          showMessageModal(`Warning: Standard key "${originalKeyInput}" for song "${song.title}" is not recognized. Transpose functions will be limited.`);
+          initialOriginalKey = originalKeyInput; // Keep original input for display in reset button if needed
+          initialCurrentKey = 'Key Error';
+          isValidOriginalKey = false;
+      } else if (!originalKeyInput) {
+          // If no key was provided
+          initialOriginalKey = 'N/A'; // For display on reset button
+          initialCurrentKey = 'N/A';
+          isValidOriginalKey = false;
+      } else {
+          // If valid, use the calculateNewKeyName to get the preferred display format for current key
+          initialCurrentKey = calculateNewKeyName(originalKeyNum, 0);
+      }
+
+      songTransposeStates.set(idx, {
+          semitones: initialSemitones,
+          currentKey: initialCurrentKey,
+          originalKey: initialOriginalKey,
+          isValid: isValidOriginalKey, // Add a flag for validity
+          originalKeyNum: originalKeyNum // Store the numeric value if valid
+      });
+    }
+
     let songIntervals = [];
     let lastNoteOfPreviousSection = null;
 
@@ -548,7 +782,7 @@ function renderSongs() {
     intervalTableHtml += `</tr><tr><th>Ct</th>`;
 
     // Add frequency counts with color coding
-    for (let i = 0; i <= 6; i++) {
+    for (let i = 0; i < freq.length; i++) { // Ensure loop runs for all 7 intervals
       const percentage = totalSongIntervals > 0 ? (freq[i] / totalSongIntervals * 100) : 0;
       const color = getIntervalColor(percentage);
       intervalTableHtml += `<td style="background-color: ${color}">${freq[i]}</td>`;
@@ -559,6 +793,7 @@ function renderSongs() {
       <div class="song-main">
         <div class="song-info">
           <span class="song-title">${song.title}</span>
+          <span class="song-sections">Original Key: ${song.standardKey || 'N/A'}</span>
         </div>
         <div class="song-summary-table">
           <table class="interval-table">
@@ -574,6 +809,7 @@ function renderSongs() {
       <div class="edit-form" id="edit-form-${idx}">
         <h3>Edit Song</h3>
         <input type="text" class="edit-title" value="${song.title}" placeholder="Song Title" required>
+        <input type="text" class="edit-standard-key" value="${song.standardKey || ''}" placeholder="Standard Key (e.g., C, G, Bb)">
         <div class="edit-sections-container"></div>
         <div class="edit-actions">
           <button type="button" class="btn btn-discreet add-edit-section-btn">Add Section</button>
@@ -587,9 +823,15 @@ function renderSongs() {
       if (e.target.closest('.edit-btn') || e.target.closest('.delete-btn')) return;
       const details = songDiv.querySelector('.song-details');
       const isExpanded = songDiv.classList.toggle('expanded');
-      if (isExpanded && !details.hasChildNodes()) {
-        details.innerHTML = renderSongDetails(song);
+      if (isExpanded) {
+        // Retrieve current transpose state for this song
+        const { semitones, currentKey } = songTransposeStates.get(idx);
+        details.innerHTML = renderSongDetails(song, idx, semitones, currentKey);
         addIntervalHoverListeners(details);
+        setupTransposeControls(song, idx); // Setup transpose event listeners
+      } else {
+        // When collapsing, clear details to ensure fresh render on re-expansion
+        details.innerHTML = '';
       }
     };
 
@@ -612,6 +854,7 @@ function renderSongs() {
     };
     editForm.querySelector('.save-edit-btn').onclick = function() {
       const title = editForm.querySelector('.edit-title').value.trim();
+      const standardKey = editForm.querySelector('.edit-standard-key').value.trim();
       const sectionDivs = Array.from(editForm.querySelectorAll('.edit-section-field'));
       const sections = sectionDivs.map(div => ({
         label: div.querySelector('.edit-section-label').value.trim(),
@@ -623,9 +866,41 @@ function renderSongs() {
         return;
       }
       const songs = loadSongs();
-      songs[idx] = { title, sections };
+      songs[idx] = { title, sections, standardKey }; // Save standardKey
       saveSongs(songs);
-      renderSongs();
+      
+      // Update transpose state for this song after editing key
+      const newOriginalKeyInput = standardKey ? standardKey.trim() : '';
+      const lookupKey = formatKeyForLookup(newOriginalKeyInput);
+      const newOriginalKeyNum = NOTE_TO_NUM[lookupKey];
+      
+      let initialOriginalKey = newOriginalKeyInput;
+      let initialCurrentKey = newOriginalKeyInput;
+      let isValidOriginalKey = true;
+
+      if (newOriginalKeyInput && newOriginalKeyNum === undefined) {
+          showMessageModal(`Warning: Standard key "${newOriginalKeyInput}" for song "${title}" is not recognized. Transpose functions will be limited.`);
+          initialOriginalKey = newOriginalKeyInput;
+          initialCurrentKey = 'Key Error';
+          isValidOriginalKey = false;
+      } else if (!newOriginalKeyInput) {
+          initialOriginalKey = 'N/A';
+          initialCurrentKey = 'N/A';
+          isValidOriginalKey = false;
+      } else {
+          // If valid, ensure currentKey is the properly formatted key string
+          initialCurrentKey = calculateNewKeyName(newOriginalKeyNum, 0); // Use calculateNewKeyName to get preferred display
+      }
+
+      songTransposeStates.set(idx, {
+          semitones: 0,
+          currentKey: initialCurrentKey,
+          originalKey: initialOriginalKey,
+          isValid: isValidOriginalKey,
+          originalKeyNum: newOriginalKeyNum
+      });
+
+      renderSongs(); // Re-render all songs to reflect changes
     };
     editForm.querySelector('.cancel-edit-btn').onclick = function() {
       editForm.classList.remove('active');
@@ -636,6 +911,7 @@ function renderSongs() {
         const songs = loadSongs();
         songs.splice(idx, 1);
         saveSongs(songs);
+        songTransposeStates.delete(idx); // Remove transpose state for deleted song
         renderSongs();
       });
     };
@@ -659,23 +935,47 @@ function getIntervalColor(percentage) {
   }
 }
 
-function renderSongDetails(song) {
-  let html = '<table class="song-details-table">';
+/**
+ * Renders the detailed view of a song, applying transposition if specified.
+ * @param {object} song - The song object.
+ * @param {number} songIdx - The index of the song in the songs array.
+ * @param {number} currentTransposeSemitones - The number of semitones to transpose by.
+ * @param {string} currentKeyDisplay - The string representation of the current key.
+ */
+function renderSongDetails(song, songIdx, currentTransposeSemitones, currentKeyDisplay) {
+  const currentTransposeState = songTransposeStates.get(songIdx);
+  const { originalKey, isValid } = currentTransposeState;
+
+  let html = `
+    <div class="transpose-controls">
+        <span class="transpose-label">Transpose:</span>
+        <button class="btn btn-discreet" data-transpose-semitones="-1" data-transpose-preference="flat" data-song-idx="${songIdx}">-1</button>
+        <button class="btn btn-discreet" data-transpose-semitones="+1" data-transpose-preference="sharp" data-song-idx="${songIdx}">+1</button>
+        <button class="btn btn-discreet" data-target-key="Bb" data-song-idx="${songIdx}">To 🎺</button>
+        <button class="btn btn-discreet" data-target-key="Eb" data-song-idx="${songIdx}">To 🎷</button>
+        <button class="btn btn-discreet reset-transpose-btn" data-song-idx="${songIdx}">Reset to <span id="reset-key-display-${songIdx}">${originalKey}</span></button>
+        <div class="transpose-key-display">Current Key: <span id="current-transposed-key-${songIdx}">${currentKeyDisplay}</span></div>
+    </div>
+    <table class="song-details-table">
+  `;
   let lastNoteOfPreviousSection = null; // To carry over the last chord's note
 
   song.sections.forEach((section, sectionIdx) => {
     let chordCells = '';
     let intervalCells = '';
 
-    const sectionChords = section.chords;
-    const sectionBaseNotes = sectionChords.map(parseChordRoot);
+    // Transpose chords for display only if the original key is valid
+    const chordsToDisplay = isValid
+        ? section.chords.map(chord => transposeChord(chord, currentTransposeSemitones))
+        : section.chords; // If invalid, just display original chords
+
+    const sectionBaseNotes = chordsToDisplay.map(parseChordRoot);
 
     // Determine the initialLastValidNote for this section's getIntervals call
-    // For the first section, it's null. For subsequent sections, it's the last valid note from the *previous* section.
     const initialNoteForSection = sectionIdx === 0 ? null : lastNoteOfPreviousSection;
     const intervals = getIntervals(sectionBaseNotes, initialNoteForSection);
 
-    sectionChords.forEach((chord, i) => {
+    chordsToDisplay.forEach((chord, i) => {
       chordCells += `<td>${chord}</td>`;
 
       const interval = intervals[i];
@@ -701,13 +1001,153 @@ function renderSongDetails(song) {
       if (sectionBaseNotes[i] !== '-' && sectionBaseNotes[i] !== null) {
         currentSectionLastValidNote = sectionBaseNotes[i];
         break;
-      }
+        }
     }
     lastNoteOfPreviousSection = currentSectionLastValidNote;
   });
   html += '</table>';
   return html;
 }
+
+/**
+ * Sets up event listeners for the transpose controls of a specific song.
+ * @param {object} song - The song object.
+ * @param {number} songIdx - The index of the song.
+ */
+ function setupTransposeControls(song, songIdx) {
+    const songDiv = document.querySelector(`.song:nth-child(${songIdx + 1})`);
+    if (!songDiv) return; // Should not happen if called correctly
+
+    const transposeControlsDiv = songDiv.querySelector('.transpose-controls');
+    const currentKeyDisplaySpan = songDiv.querySelector(`#current-transposed-key-${songIdx}`);
+    const resetKeyDisplaySpan = songDiv.querySelector(`#reset-key-display-${songIdx}`);
+
+    const currentTransposeState = songTransposeStates.get(songIdx);
+    // Destructure needed properties from currentTransposeState
+    const { semitones: currentSemitones, originalKey: songOriginalKey, isValid: isOriginalKeyValid, originalKeyNum: storedOriginalKeyNum } = currentTransposeState;
+
+    // Disable transpose buttons if the original key is not valid
+    if (!isOriginalKeyValid) {
+        transposeControlsDiv.querySelectorAll('button').forEach(button => {
+            if (!button.classList.contains('reset-transpose-btn')) { // Keep reset button enabled
+                button.disabled = true;
+                button.style.opacity = '0.5';
+                button.style.cursor = 'not-allowed';
+            }
+        });
+        // Ensure the display reflects the invalid state if it wasn't set correctly initially
+        if (currentKeyDisplaySpan) {
+             currentKeyDisplaySpan.textContent = 'Key Error';
+        }
+        if (resetKeyDisplaySpan) {
+            resetKeyDisplaySpan.textContent = songOriginalKey; // Shows original invalid input
+        }
+    }
+
+
+    const updateTransposeDisplay = (semitones, currentKey) => {
+        const details = songDiv.querySelector('.song-details');
+        details.innerHTML = renderSongDetails(song, songIdx, semitones, currentKey);
+        addIntervalHoverListeners(details); // Re-attach hover listeners
+        // Re-setup controls because innerHTML clears them
+        setupTransposeControls(song, songIdx);
+    };
+
+    transposeControlsDiv.querySelectorAll('button').forEach(button => {
+        button.onclick = () => {
+            // If the original key is not valid and it's not the reset button, show message and exit
+            if (!isOriginalKeyValid && !button.classList.contains('reset-transpose-btn')) {
+                showMessageModal('Please provide a valid standard key for this song to use transpose functions.');
+                return;
+            }
+
+            // Re-fetch current transpose state as it might have changed
+            const updatedTransposeState = songTransposeStates.get(songIdx);
+            let { semitones: currentSemitones, originalKey: songOriginalKey, isValid: isOriginalKeyValidUpdate, originalKeyNum: storedOriginalKeyNumUpdate } = updatedTransposeState;
+
+
+            // Handle Reset button
+            if (button.classList.contains('reset-transpose-btn')) {
+                let initialSemitones = 0;
+                let initialKey;
+                // If the originalKey was invalid (e.g., 'Xyz' or empty), reset currentKey to 'Key Error' or 'N/A'
+                if (!isOriginalKeyValidUpdate) {
+                  initialKey = songOriginalKey; // Keep the original invalid input for display
+                } else {
+                  // If valid, use calculateNewKeyName to get the preferred display format
+                  initialKey = calculateNewKeyName(storedOriginalKeyNumUpdate, 0);
+                }
+                songTransposeStates.set(songIdx, { semitones: initialSemitones, currentKey: initialKey, originalKey: songOriginalKey, isValid: isOriginalKeyValidUpdate, originalKeyNum: storedOriginalKeyNumUpdate });
+                updateTransposeDisplay(initialSemitones, initialKey);
+                return;
+            }
+
+            // Handle specific key buttons (Bb, Eb)
+            const targetKeyInstrument = button.getAttribute('data-target-key');
+            if (targetKeyInstrument) {
+                let semitonesToTarget;
+                let newCurrentKeyDisplay;
+
+                if (targetKeyInstrument === 'Bb') {
+                    // For Bb instruments, a written C sounds as Bb, so transpose down 2 semitones from piano's key
+                    semitonesToTarget = -2;
+                    // The displayed key should be the original key (piano) transposed by -2 semitones
+                    newCurrentKeyDisplay = calculateNewKeyName(storedOriginalKeyNumUpdate, semitonesToTarget);
+
+                } else if (targetKeyInstrument === 'Eb') {
+                    // For Eb instruments, a written C sounds as Eb, so transpose up 3 semitones from piano's key
+                    semitonesToTarget = 3;
+                    // The displayed key should be the original key (piano) transposed by +3 semitones
+                    newCurrentKeyDisplay = calculateNewKeyName(storedOriginalKeyNumUpdate, semitonesToTarget);
+                } else {
+                    // Fallback for unrecognized target keys, though ideally prevented by UI
+                    showMessageModal(`Target key instrument "${targetKeyInstrument}" not recognized.`);
+                    return;
+                }
+
+                if (storedOriginalKeyNumUpdate === undefined) {
+                    showMessageModal(`Original key "${songOriginalKey}" not recognized. Cannot transpose for instrument.`);
+                    return;
+                }
+                
+                songTransposeStates.set(songIdx, { semitones: semitonesToTarget, currentKey: newCurrentKeyDisplay, originalKey: songOriginalKey, isValid: isOriginalKeyValidUpdate, originalKeyNum: storedOriginalKeyNumUpdate });
+                updateTransposeDisplay(semitonesToTarget, newCurrentKeyDisplay);
+                return;
+            }
+
+            // Handle +/- buttons
+            const transposeChange = parseInt(button.getAttribute('data-transpose-semitones'));
+            // notationPreference is used by transposeChord, not directly by key calculation
+            // const notationPreference = button.getAttribute('data-transpose-preference'); 
+
+            if (!isNaN(transposeChange)) {
+                let newSemitones = currentSemitones + transposeChange;
+                
+                if (storedOriginalKeyNumUpdate === undefined) {
+                    // This case should ideally be caught by the disabled buttons, but as a safeguard
+                    showMessageModal(`Original key "${songOriginalKey}" for song "${song.title}" not recognized. Cannot transpose.`);
+                    return;
+                }
+                
+                const newCurrentKey = calculateNewKeyName(storedOriginalKeyNumUpdate, newSemitones);
+
+                songTransposeStates.set(songIdx, { semitones: newSemitones, currentKey: newCurrentKey, originalKey: songOriginalKey, isValid: isOriginalKeyValidUpdate, originalKeyNum: storedOriginalKeyNumUpdate });
+                updateTransposeDisplay(newSemitones, newCurrentKey);
+            }
+        };
+    });
+    
+    // Update the "Reset to X" button text if the current song state has a valid original key
+    // This is already done in renderSongDetails, but ensure consistency here for robustness
+    if (resetKeyDisplaySpan) {
+        if (currentTransposeState.isValid) {
+            resetKeyDisplaySpan.textContent = currentTransposeState.originalKey;
+        } else {
+            resetKeyDisplaySpan.textContent = currentTransposeState.originalKey; // Display the invalid input
+        }
+    }
+}
+
 
 function addIntervalHoverListeners(containerElement) {
   const intervalCells = containerElement.querySelectorAll('.interval-value');
@@ -723,7 +1163,7 @@ function addIntervalHoverListeners(containerElement) {
 
         let displayLabel;
         let frequencyCount = 0;
-        let percentage = 0;
+        // let percentage = 0; // Not used from here, calculated below
 
         if (normalizeIntervals) {
           displayLabel = intervalVal;
@@ -746,7 +1186,7 @@ function addIntervalHoverListeners(containerElement) {
             frequencyCount = globalStats.freq[6 + intervalVal];
           }
         }
-        percentage = globalStats.total ? (frequencyCount / globalStats.total * 100).toFixed(1) : 0;
+        const percentage = globalStats.total ? (frequencyCount / globalStats.total * 100).toFixed(1) : 0;
 
         popup.innerHTML = `<b>Interval ${displayLabel}</b><br>Total Percentage: ${percentage}%`;
         popup.style.display = 'block';
@@ -790,7 +1230,9 @@ function hideIntervalPopup() {
 document.querySelector('.add-song-form').onsubmit = function(e) {
   e.preventDefault();
   const titleInput = document.getElementById('song-title');
+  const standardKeyInput = document.getElementById('song-standard-key');
   const title = titleInput.value.trim();
+  const standardKey = standardKeyInput.value.trim(); // Get standard key
 
   const sectionDivs = Array.from(document.querySelectorAll('#sections-container .section-field'));
   const sections = sectionDivs.map(div => ({
@@ -805,7 +1247,7 @@ document.querySelector('.add-song-form').onsubmit = function(e) {
   }
 
   const songs = loadSongs();
-  songs.push({ title, sections });
+  songs.push({ title, sections, standardKey }); // Save standardKey with song
   saveSongs(songs);
   renderSongs();
 
@@ -1060,8 +1502,6 @@ function showMessageModal(message) {
 function showConfirmationModal(message, onConfirmCallback) {
   showModal(message, 'confirm', onConfirmCallback);
 }
-
-
-  </script>
+</script>
 </body>
 </html>

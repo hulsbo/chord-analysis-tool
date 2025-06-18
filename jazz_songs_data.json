@@ -54,7 +54,8 @@
             "G7"
           ]
         }
-      ]
+      ],
+      "standardKey": "C"
     },
     {
       "title": "Autumn Leaves",
@@ -111,7 +112,8 @@
             "Ebmaj7"
           ]
         }
-      ]
+      ],
+      "standardKey": "Eb"
     },
     {
       "title": "Blue Bossa",
@@ -155,7 +157,8 @@
             "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "Eb"
     },
     {
       "title": "Take the 'A' Train",
@@ -212,7 +215,8 @@
             "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "C"
     },
     {
       "title": "So What",
@@ -269,7 +273,8 @@
             "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "C"
     },
     {
       "title": "Cantaloupe Island",
@@ -310,7 +315,8 @@
             "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "Ab"
     },
     {
       "title": "Fly Me to the Moon",
@@ -367,7 +373,8 @@
             "C7"
           ]
         }
-      ]
+      ],
+      "standardKey": "C"
     },
     {
       "title": "Georgia on My Mind",
@@ -424,7 +431,8 @@
             "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "F"
     },
     {
       "title": "Summertime",
@@ -481,7 +489,8 @@
             "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "C"
     },
     {
       "title": "What a Wonderful World",
@@ -491,37 +500,37 @@
           "chords": [
             "Fmaj7",
             "-",
-            "Am",
-            "Gm7",
-            "C7",
+            "Am7",
             "-",
-            "Fmaj7",
-            "-"
+            "Bbmaj7",
+            "-",
+            "Am7",
+            "Gm7"
           ]
         },
         {
           "label": "A",
           "chords": [
-            "Fmaj7",
-            "-",
-            "Am",
-            "Gm7",
             "C7",
             "-",
             "Fmaj7",
-            "-"
+            "-",
+            "Dm7",
+            "-",
+            "G7",
+            "C7"
           ]
         },
         {
           "label": "B",
           "chords": [
+            "Bbmaj7",
+            "-",
+            "Am7",
+            "-",
+            "Gm7",
+            "-",
             "Fmaj7",
-            "A7",
-            "Dm",
-            "Bb",
-            "Fmaj7",
-            "G7",
-            "C7",
             "-"
           ]
         },
@@ -530,15 +539,16 @@
           "chords": [
             "Fmaj7",
             "-",
-            "Am",
-            "Gm7",
-            "C7",
+            "Am7",
             "-",
-            "Fmaj7",
-            "-"
+            "Bbmaj7",
+            "-",
+            "Am7",
+            "Gm7"
           ]
         }
-      ]
+      ],
+      "standardKey": "F"
     },
     {
       "title": "Body and Soul",
@@ -559,14 +569,14 @@
         {
           "label": "A",
           "chords": [
+            "Ebm7",
+            "Ab7",
             "Dbmaj7",
             "-",
             "Bbm7",
             "Eb7",
             "Abmaj7",
-            "-",
-            "Fm7",
-            "Bb7"
+            "-"
           ]
         },
         {
@@ -578,8 +588,8 @@
             "D7",
             "Gmaj7",
             "-",
-            "Gm7",
-            "C7"
+            "Em7",
+            "A7"
           ]
         },
         {
@@ -595,7 +605,8 @@
             "Bb7"
           ]
         }
-      ]
+      ],
+      "standardKey": "Db"
     },
     {
       "title": "Misty",
@@ -604,39 +615,56 @@
           "label": "A",
           "chords": [
             "Ebmaj7",
-            "Bbm7 Eb7",
+            "-",
             "Abmaj7",
-            "Abm7 Db7"
+            "-",
+            "Abm7",
+            "Db7",
+            "Ebmaj7",
+            "-"
           ]
         },
         {
           "label": "A",
           "chords": [
             "Ebmaj7",
-            "Bbm7 Eb7",
+            "-",
             "Abmaj7",
-            "Abm7 Db7"
+            "-",
+            "Abm7",
+            "Db7",
+            "Ebmaj7",
+            "-"
           ]
         },
         {
           "label": "B",
           "chords": [
-            "Am7 D7",
-            "Cm7 F7",
-            "Fm7 Bb7",
-            "Ebmaj7"
+            "Fm7",
+            "Bb7",
+            "Ebmaj7",
+            "-",
+            "Cm7",
+            "F7",
+            "Bb7",
+            "-"
           ]
         },
         {
           "label": "A",
           "chords": [
             "Ebmaj7",
-            "Bbm7 Eb7",
+            "-",
             "Abmaj7",
-            "Abm7 Db7"
+            "-",
+            "Abm7",
+            "Db7",
+            "Ebmaj7",
+            "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "Eb"
     },
     {
       "title": "On Green Dolphin Street",
@@ -646,25 +674,36 @@
           "chords": [
             "Cmaj7",
             "-",
-            "-",
-            "-",
             "Cm7",
-            "F7",
-            "Bbmaj7",
+            "-",
+            "Fmaj7",
+            "-",
+            "Bbm7",
+            "Eb7"
+          ]
+        },
+        {
+          "label": "A",
+          "chords": [
+            "Abmaj7",
+            "-",
+            "Dm7",
+            "G7",
+            "Cmaj7",
             "-"
           ]
         },
         {
           "label": "B",
           "chords": [
-            "Ebmaj7",
-            "-",
-            "Am7b5",
+            "Am7",
             "D7",
-            "Gm7",
-            "C7",
-            "Fmaj7",
-            "Bb7"
+            "Gmaj7",
+            "-",
+            "Dm7",
+            "G7",
+            "Cmaj7",
+            "-"
           ]
         },
         {
@@ -672,28 +711,16 @@
           "chords": [
             "Cmaj7",
             "-",
-            "-",
-            "-",
             "Cm7",
-            "F7",
-            "Bbmaj7",
-            "-"
-          ]
-        },
-        {
-          "label": "B",
-          "chords": [
-            "Ebmaj7",
             "-",
-            "Am7b5",
-            "D7",
-            "Gm7",
-            "C7",
             "Fmaj7",
-            "Bb7"
+            "-",
+            "Bbm7",
+            "Eb7"
           ]
         }
-      ]
+      ],
+      "standardKey": "Ab"
     },
     {
       "title": "The Girl from Ipanema",
@@ -702,37 +729,11 @@
           "label": "A",
           "chords": [
             "Fmaj7",
-            "-",
-            "G7#11",
-            "-",
+            "G7",
             "Gm7",
-            "Gb7",
+            "C7",
             "Fmaj7",
-            "-"
-          ]
-        },
-        {
-          "label": "A",
-          "chords": [
-            "Fmaj7",
-            "-",
-            "G7#11",
-            "-",
-            "Gm7",
-            "Gb7",
-            "Fmaj7",
-            "-"
-          ]
-        },
-        {
-          "label": "B",
-          "chords": [
-            "Gbmaj7",
-            "-",
-            "Gbm7",
-            "-",
-            "Gmaj7",
-            "-",
+            "G7",
             "Gm7",
             "C7"
           ]
@@ -741,16 +742,43 @@
           "label": "A",
           "chords": [
             "Fmaj7",
-            "-",
-            "G7#11",
-            "-",
+            "G7",
             "Gm7",
-            "Gb7",
+            "C7",
             "Fmaj7",
-            "-"
+            "Am7",
+            "Abm7",
+            "Gm7"
+          ]
+        },
+        {
+          "label": "B",
+          "chords": [
+            "Dbmaj7",
+            "-",
+            "Gbmaj7",
+            "-",
+            "Dbm7",
+            "F7",
+            "Bbm7",
+            "Eb7"
+          ]
+        },
+        {
+          "label": "A",
+          "chords": [
+            "Fmaj7",
+            "G7",
+            "Gm7",
+            "C7",
+            "Fmaj7",
+            "G7",
+            "Gm7",
+            "C7"
           ]
         }
-      ]
+      ],
+      "standardKey": "F"
     },
     {
       "title": "'Round Midnight",
@@ -758,56 +786,57 @@
         {
           "label": "A",
           "chords": [
-            "Ebm7b5",
-            "Ab7b9",
+            "Ebm7",
+            "Ab7",
             "Dbmaj7",
             "-",
+            "Gbmaj7",
             "Fm7b5",
-            "Bb7b9",
-            "Ebm7",
-            "Ab7b9"
+            "Bb7",
+            "Ebm7"
           ]
         },
         {
           "label": "A",
           "chords": [
+            "Ebm7",
+            "Ab7",
             "Dbmaj7",
             "-",
+            "Gbmaj7",
             "Fm7b5",
-            "Bb7b9",
-            "Ebm7",
-            "Ab7b9",
-            "Dbmaj7",
-            "-"
+            "Bb7",
+            "Ebm7"
           ]
         },
         {
           "label": "B",
           "chords": [
-            "Cm7b5",
-            "F7b9",
-            "Bbm7",
-            "Eb7b9",
-            "Abm7",
-            "Db7b9",
-            "Gbm7",
-            "B7b9"
+            "Am7b5",
+            "D7",
+            "Gm7",
+            "C7",
+            "Fm7",
+            "Bb7",
+            "Ebmaj7",
+            "-"
           ]
         },
         {
           "label": "A",
           "chords": [
-            "Ebm7b5",
-            "Ab7b9",
-            "Dbmaj7",
+            "Abm7",
+            "Db7",
+            "Gbmaj7",
             "-",
-            "Fm7b5",
-            "Bb7b9",
-            "Ebm7",
-            "Ab7b9"
+            "Bbm7b5",
+            "Eb7",
+            "Abmaj7",
+            "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "Gb"
     },
     {
       "title": "Stella by Starlight",
@@ -815,56 +844,57 @@
         {
           "label": "A",
           "chords": [
-            "Ebm7b5",
-            "Ab7",
-            "Dbmaj7",
-            "Cm7b5 F7",
-            "Bbm7",
-            "Eb7",
-            "Abmaj7",
-            "Dm7b5 G7"
-          ]
-        },
-        {
-          "label": "A",
-          "chords": [
-            "Cm7b5",
-            "F7",
-            "Bbm7",
-            "Eb7",
+            "Bbmaj7",
+            "-",
             "Am7b5",
             "D7",
             "Gm7",
-            "C7"
+            "C7",
+            "Fm7",
+            "Bb7"
           ]
         },
         {
           "label": "B",
           "chords": [
-            "Fm7",
-            "Bb7",
             "Ebmaj7",
-            "Dm7",
-            "G7",
-            "Cm7",
-            "Gm7b5",
-            "C7"
+            "-",
+            "D7",
+            "-",
+            "Gm7",
+            "C7",
+            "Fm7",
+            "Bb7"
+          ]
+        },
+        {
+          "label": "A",
+          "chords": [
+            "Bbmaj7",
+            "-",
+            "Am7b5",
+            "D7",
+            "Gm7",
+            "C7",
+            "Fm7",
+            "Bb7"
           ]
         },
         {
           "label": "C",
           "chords": [
-            "Fm7",
-            "Bb7",
             "Ebmaj7",
-            "D7b9",
+            "-",
+            "Ebm7",
+            "Ab7",
+            "Dbmaj7",
+            "-",
             "Gm7b5",
-            "C7",
-            "Fm7",
-            "Bb7"
+            "C7"
           ]
         }
-      ]
+      ],
+      "standardKey": "Bb"
     },
     {
       "title": "There Will Never Be Another You",
@@ -874,54 +904,55 @@
           "chords": [
             "Ebmaj7",
             "-",
-            "Am7b5",
-            "D7b9",
-            "Gm7",
-            "C7",
-            "Fm7",
-            "Bb7"
+            "Abmaj7",
+            "-",
+            "Dm7b5",
+            "G7",
+            "Cm7",
+            "F7"
           ]
         },
         {
           "label": "A",
           "chords": [
+            "Bbmaj7",
+            "-",
             "Ebmaj7",
             "-",
             "Am7b5",
-            "D7b9",
+            "D7",
             "Gm7",
-            "C7",
-            "Fm7",
-            "Bb7"
+            "C7"
           ]
         },
         {
           "label": "B",
           "chords": [
+            "Fm7",
+            "Bb7",
+            "Ebmaj7",
+            "-",
             "Abmaj7",
             "-",
-            "Dbm7",
-            "Gb7",
-            "Fmaj7",
-            "-",
-            "Em7",
-            "A7"
+            "Dm7b5",
+            "G7"
           ]
         },
         {
           "label": "A",
           "chords": [
-            "Ebmaj7",
+            "Cm7",
+            "F7",
+            "Bbmaj7",
             "-",
             "Am7b5",
-            "D7b9",
+            "D7",
             "Gm7",
-            "C7",
-            "Fm7",
-            "Bb7"
+            "C7"
           ]
         }
-      ]
+      ],
+      "standardKey": "Eb"
     },
     {
       "title": "Darn That Dream",
@@ -931,12 +962,12 @@
           "chords": [
             "Gmaj7",
             "-",
-            "Gm7",
-            "C7",
-            "Fmaj7",
-            "-",
+            "Am7",
+            "D7",
+            "Gmaj7",
             "Em7",
-            "A7"
+            "Am7",
+            "D7"
           ]
         },
         {
@@ -944,25 +975,25 @@
           "chords": [
             "Gmaj7",
             "-",
-            "Gm7",
-            "C7",
-            "Fmaj7",
-            "-",
+            "Am7",
+            "D7",
+            "Gmaj7",
             "Em7",
-            "A7"
+            "Am7",
+            "D7"
           ]
         },
         {
           "label": "B",
           "chords": [
+            "Bbm7",
+            "Eb7",
             "Abmaj7",
-            "Db7",
-            "Gbmaj7",
-            "B7",
-            "Emaj7",
-            "Bb7",
-            "Ebmaj7",
-            "Am7b5 D7"
+            "-",
+            "Am7",
+            "D7",
+            "Gmaj7",
+            "-"
           ]
         },
         {
@@ -970,15 +1001,16 @@
           "chords": [
             "Gmaj7",
             "-",
-            "Gm7",
-            "C7",
-            "Fmaj7",
-            "-",
+            "Am7",
+            "D7",
+            "Gmaj7",
             "Em7",
-            "A7"
+            "Am7",
+            "D7"
           ]
         }
-      ]
+      ],
+      "standardKey": "G"
     },
     {
       "title": "Night and Day",
@@ -988,11 +1020,11 @@
           "chords": [
             "Cmaj7",
             "-",
-            "Fmaj7",
+            "Fm7",
             "-",
-            "Bbmaj7",
+            "Cmaj7",
             "-",
-            "Ebmaj7",
+            "G7",
             "-"
           ]
         },
@@ -1001,25 +1033,25 @@
           "chords": [
             "Cmaj7",
             "-",
-            "Fmaj7",
+            "Fm7",
             "-",
-            "Bbmaj7",
+            "Cmaj7",
             "-",
-            "Ebmaj7",
+            "G7",
             "-"
           ]
         },
         {
           "label": "B",
           "chords": [
-            "Am7",
-            "D7",
-            "Gm7",
-            "C7",
-            "Fm7",
-            "Bb7",
-            "Ebm7",
-            "Ab7"
+            "Ebmaj7",
+            "-",
+            "Abmaj7",
+            "-",
+            "Dm7",
+            "G7",
+            "Cmaj7",
+            "-"
           ]
         },
         {
@@ -1027,15 +1059,16 @@
           "chords": [
             "Cmaj7",
             "-",
-            "Fmaj7",
+            "Fm7",
             "-",
-            "Bbmaj7",
+            "Cmaj7",
             "-",
-            "Ebmaj7",
+            "G7",
             "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "C"
     },
     {
       "title": "All the Things You Are",
@@ -1048,35 +1081,35 @@
             "Eb7",
             "Abmaj7",
             "Dbmaj7",
-            "G7",
-            "Cmaj7",
-            "-"
+            "Gm7b5",
+            "C7",
+            "Fm7"
           ]
         },
         {
           "label": "A",
           "chords": [
-            "Cm7",
-            "Fm7",
-            "Bb7",
-            "Ebmaj7",
+            "Bbm7",
+            "Eb7",
             "Abmaj7",
-            "D7",
-            "Gmaj7",
-            "-"
+            "Dbmaj7",
+            "Gbm7",
+            "B7",
+            "Emaj7",
+            "Am7"
           ]
         },
         {
           "label": "B",
           "chords": [
+            "Dbm7",
+            "F#7",
+            "Bmaj7",
+            "Emaj7",
             "Am7",
             "D7",
             "Gmaj7",
-            "F#m7b5",
-            "B7",
-            "Em7",
-            "Ebm7",
-            "Ab7"
+            "Cmaj7"
           ]
         },
         {
@@ -1087,12 +1120,13 @@
             "Eb7",
             "Abmaj7",
             "Dbmaj7",
-            "G7",
-            "Cmaj7",
-            "-"
+            "Gm7b5",
+            "C7",
+            "Fm7"
           ]
         }
-      ]
+      ],
+      "standardKey": "Ab"
     },
     {
       "title": "I Got Rhythm",
@@ -1101,11 +1135,11 @@
           "label": "A",
           "chords": [
             "Bbmaj7",
-            "Gm7",
+            "-",
             "Cm7",
             "F7",
             "Bbmaj7",
-            "Gm7",
+            "-",
             "Cm7",
             "F7"
           ]
@@ -1114,11 +1148,11 @@
           "label": "A",
           "chords": [
             "Bbmaj7",
-            "Gm7",
+            "-",
             "Cm7",
             "F7",
             "Bbmaj7",
-            "Gm7",
+            "-",
             "Cm7",
             "F7"
           ]
@@ -1126,13 +1160,13 @@
         {
           "label": "B",
           "chords": [
-            "D7",
+            "Dbmaj7",
             "-",
-            "G7",
-            "-",
-            "C7",
-            "-",
+            "Dbm7",
+            "Gb7",
+            "Cm7",
             "F7",
+            "Bbmaj7",
             "-"
           ]
         },
@@ -1140,16 +1174,17 @@
           "label": "A",
           "chords": [
             "Bbmaj7",
-            "Gm7",
+            "-",
             "Cm7",
             "F7",
             "Bbmaj7",
-            "Gm7",
+            "-",
             "Cm7",
             "F7"
           ]
         }
-      ]
+      ],
+      "standardKey": "Bb"
     },
     {
       "title": "Giant Steps",
@@ -1168,20 +1203,20 @@
           ]
         },
         {
-          "label": "A",
+          "label": "B",
           "chords": [
-            "Bb7",
-            "Ebmaj7",
+            "C#m7",
             "F#7",
             "Bmaj7",
             "D7",
             "Gmaj7",
             "Bb7",
-            "Ebmaj7"
+            "Ebmaj7",
+            "Fm7"
           ]
         },
         {
-          "label": "B",
+          "label": "A",
           "chords": [
             "Bmaj7",
             "D7",
@@ -1192,21 +1227,9 @@
             "D7",
             "Gmaj7"
           ]
-        },
-        {
-          "label": "A",
-          "chords": [
-            "Bb7",
-            "Ebmaj7",
-            "F#7",
-            "Bmaj7",
-            "D7",
-            "Gmaj7",
-            "Bb7",
-            "Ebmaj7"
-          ]
         }
-      ]
+      ],
+      "standardKey": "Bb"
     },
     {
       "title": "Donna Lee",
@@ -1215,55 +1238,56 @@
           "label": "A",
           "chords": [
             "Abmaj7",
-            "Abm7",
-            "Db7",
-            "Gbmaj7",
-            "Gbm7",
-            "B7",
-            "Emaj7",
-            "Eb7"
+            "-",
+            "Bb7",
+            "-",
+            "Eb7",
+            "-",
+            "Abmaj7",
+            "-"
           ]
         },
         {
           "label": "A",
           "chords": [
             "Abmaj7",
-            "Abm7",
-            "Db7",
-            "Gbmaj7",
-            "Gbm7",
-            "B7",
-            "Emaj7",
-            "Eb7"
+            "-",
+            "Bb7",
+            "-",
+            "Eb7",
+            "-",
+            "Abmaj7",
+            "-"
           ]
         },
         {
           "label": "B",
           "chords": [
-            "Am7",
-            "D7",
-            "Gmaj7",
-            "Gm7",
-            "C7",
-            "Fmaj7",
-            "Fm7",
-            "Bb7"
+            "Dmaj7",
+            "-",
+            "G7",
+            "-",
+            "Cmaj7",
+            "-",
+            "F7",
+            "-"
           ]
         },
         {
           "label": "A",
           "chords": [
-            "Ebm7",
-            "Ab7",
-            "Dbmaj7",
-            "Ddim7",
-            "Ebm7",
-            "Ab7",
-            "Dbmaj7",
+            "Abmaj7",
+            "-",
+            "Bb7",
+            "-",
+            "Eb7",
+            "-",
+            "Abmaj7",
             "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "Ab"
     },
     {
       "title": "Solar",
@@ -1271,56 +1295,44 @@
         {
           "label": "A",
           "chords": [
-            "Cmmaj7",
-            "C7",
-            "Fmaj7",
+            "Cm7",
+            "-",
             "Fm7",
-            "Bb7",
-            "Ebmaj7",
+            "-",
             "Ebm7",
-            "Ab7"
-          ]
-        },
-        {
-          "label": "A",
-          "chords": [
-            "Dbmaj7",
-            "Dbm7",
-            "Gb7",
-            "Bmaj7",
-            "Bb7",
-            "Eb7",
-            "Abmaj7",
-            "Abm7"
+            "-",
+            "Am7",
+            "D7"
           ]
         },
         {
           "label": "B",
           "chords": [
-            "Dbmaj7",
-            "Dm7b5",
-            "G7",
-            "Cm7",
-            "Fm7",
-            "Bb7",
-            "Ebmaj7",
-            "Am7b5"
+            "Gmaj7",
+            "-",
+            "Cmaj7",
+            "-",
+            "Fmaj7",
+            "-",
+            "Bbmaj7",
+            "-"
           ]
         },
         {
           "label": "A",
           "chords": [
-            "D7",
-            "Gm7",
-            "C7",
+            "Cm7",
+            "-",
             "Fm7",
-            "Bb7",
-            "Ebmaj7",
+            "-",
             "Ebm7",
-            "Ab7"
+            "-",
+            "Am7",
+            "D7"
           ]
         }
-      ]
+      ],
+      "standardKey": "Eb"
     },
     {
       "title": "Tune Up",
@@ -1329,38 +1341,25 @@
           "label": "A",
           "chords": [
             "Dm7",
+            "G7",
+            "Cmaj7",
             "-",
-            "Gm7",
-            "C7",
-            "Fmaj7",
-            "-",
+            "Cm7",
+            "F7",
             "Bbmaj7",
-            "-"
-          ]
-        },
-        {
-          "label": "A",
-          "chords": [
-            "Ebm7",
-            "-",
-            "Abm7",
-            "Db7",
-            "Gbmaj7",
-            "-",
-            "Cbmaj7",
             "-"
           ]
         },
         {
           "label": "B",
           "chords": [
-            "Cm7",
-            "-",
-            "Fm7",
-            "Bb7",
-            "Ebmaj7",
-            "-",
+            "Bbm7",
+            "Eb7",
             "Abmaj7",
+            "-",
+            "Am7",
+            "D7",
+            "Gmaj7",
             "-"
           ]
         },
@@ -1368,16 +1367,17 @@
           "label": "A",
           "chords": [
             "Dm7",
+            "G7",
+            "Cmaj7",
             "-",
-            "Gm7",
-            "C7",
-            "Fmaj7",
-            "-",
+            "Cm7",
+            "F7",
             "Bbmaj7",
             "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "C"
     },
     {
       "title": "Recorda Me",
@@ -1385,45 +1385,19 @@
         {
           "label": "A",
           "chords": [
+            "Gm7",
+            "-",
             "Cm7",
             "-",
-            "Fm7",
+            "F7",
             "-",
-            "Bb7",
-            "-",
-            "Ebmaj7",
-            "-"
-          ]
-        },
-        {
-          "label": "A",
-          "chords": [
-            "Am7b5",
-            "D7",
-            "Gm7",
-            "C7",
-            "Fm7",
-            "Bb7",
-            "Ebmaj7",
+            "Bbmaj7",
             "-"
           ]
         },
         {
           "label": "B",
           "chords": [
-            "Abmaj7",
-            "-",
-            "Dbmaj7",
-            "-",
-            "Gm7b5",
-            "C7",
-            "Fm7",
-            "Bb7"
-          ]
-        },
-        {
-          "label": "A",
-          "chords": [
             "Ebmaj7",
             "-",
             "Am7b5",
@@ -1433,8 +1407,22 @@
             "Fm7",
             "Bb7"
           ]
+        },
+        {
+          "label": "A",
+          "chords": [
+            "Gm7",
+            "-",
+            "Cm7",
+            "-",
+            "F7",
+            "-",
+            "Bbmaj7",
+            "-"
+          ]
         }
-      ]
+      ],
+      "standardKey": "Bb"
     },
     {
       "title": "Inner Urge",
@@ -1442,56 +1430,44 @@
         {
           "label": "A",
           "chords": [
-            "F#m7b5",
-            "B7b9",
-            "Em7",
+            "Gm7",
             "-",
-            "Am7",
-            "D7",
-            "Gmaj7",
-            "-"
-          ]
-        },
-        {
-          "label": "A",
-          "chords": [
-            "F#m7b5",
-            "B7b9",
-            "Em7",
+            "Cm7",
             "-",
-            "Am7",
+            "Am7b5",
             "D7",
-            "Gmaj7",
+            "Gm7",
             "-"
           ]
         },
         {
           "label": "B",
           "chords": [
-            "Bbmaj7",
+            "F#m7b5",
+            "B7",
+            "Em7",
             "-",
-            "Am7",
-            "D7",
-            "Gm7",
-            "C7",
-            "Fmaj7",
-            "-"
+            "Dm7b5",
+            "G7",
+            "Cm7",
+            "F7"
           ]
         },
         {
           "label": "A",
           "chords": [
-            "F#m7b5",
-            "B7b9",
-            "Em7",
+            "Gm7",
             "-",
-            "Am7",
+            "Cm7",
+            "-",
+            "Am7b5",
             "D7",
-            "Gmaj7",
+            "Gm7",
             "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "A#"
     },
     {
       "title": "Moment's Notice",
@@ -1499,56 +1475,44 @@
         {
           "label": "A",
           "chords": [
-            "Cmaj7",
-            "F7",
-            "Bbmaj7",
-            "Eb7",
+            "Ebmaj7",
+            "-",
             "Abmaj7",
-            "Db7",
-            "Gbmaj7",
-            "B7"
-          ]
-        },
-        {
-          "label": "A",
-          "chords": [
-            "Emaj7",
-            "A7",
-            "Dmaj7",
+            "-",
+            "Dm7b5",
             "G7",
-            "Cmaj7",
-            "F7",
-            "Bbmaj7",
-            "Eb7"
+            "Cm7",
+            "F7"
           ]
         },
         {
           "label": "B",
           "chords": [
-            "Am7b5",
+            "Bbm7",
+            "Eb7",
+            "Abmaj7",
+            "-",
+            "Am7",
             "D7",
-            "Gm7",
-            "C7",
-            "Fm7",
-            "Bb7",
-            "Ebm7",
-            "Ab7"
+            "Gmaj7",
+            "-"
           ]
         },
         {
           "label": "A",
           "chords": [
-            "Dbmaj7",
-            "G7",
-            "Cmaj7",
-            "F7",
-            "Bbmaj7",
-            "Eb7",
+            "Ebmaj7",
+            "-",
             "Abmaj7",
-            "Db7"
+            "-",
+            "Dm7b5",
+            "G7",
+            "Cm7",
+            "F7"
           ]
         }
-      ]
+      ],
+      "standardKey": "Eb"
     },
     {
       "title": "Moanin'",
@@ -1556,24 +1520,11 @@
         {
           "label": "A",
           "chords": [
-            "Fm",
+            "Fm7",
             "-",
-            "Bb7",
+            "Bbm7",
             "-",
-            "Ebmaj7",
-            "-",
-            "Abmaj7",
-            "-"
-          ]
-        },
-        {
-          "label": "A",
-          "chords": [
-            "Fm",
-            "-",
-            "Bb7",
-            "-",
-            "Ebmaj7",
+            "Eb7",
             "-",
             "Abmaj7",
             "-"
@@ -1582,9 +1533,9 @@
         {
           "label": "B",
           "chords": [
-            "Gm7",
-            "-",
-            "C7",
+            "Dm7b5",
+            "G7",
+            "Cm7",
             "-",
             "Fm7",
             "-",
@@ -1595,17 +1546,18 @@
         {
           "label": "A",
           "chords": [
-            "Ebmaj7",
+            "Fm7",
+            "-",
+            "Bbm7",
+            "-",
+            "Eb7",
             "-",
             "Abmaj7",
-            "-",
-            "Gm7b5",
-            "C7",
-            "Fm7",
-            "Bb7"
+            "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "Ab"
     },
     {
       "title": "St. Thomas",
@@ -1624,24 +1576,11 @@
           ]
         },
         {
-          "label": "A",
-          "chords": [
-            "Cmaj7",
-            "-",
-            "G7",
-            "-",
-            "Cmaj7",
-            "-",
-            "G7",
-            "-"
-          ]
-        },
-        {
           "label": "B",
           "chords": [
-            "Fmaj7",
-            "-",
             "Cmaj7",
+            "-",
+            "Fmaj7",
             "-",
             "G7",
             "-",
@@ -1662,7 +1601,8 @@
             "-"
           ]
         }
-      ]
+      ],
+      "standardKey": "C"
     },
     {
       "title": "Softly, As in a Morning Sunrise",
@@ -1670,27 +1610,147 @@
         {
           "label": "A",
           "chords": [
-            "Cm7b5",
-            "F7",
+            "Cm7",
+            "-",
+            "Fm7",
+            "-",
             "Bbm7",
             "Eb7",
             "Abmaj7",
+            "-"
+          ]
+        },
+        {
+          "label": "B",
+          "chords": [
+            "Abm7",
+            "Db7",
+            "Gbmaj7",
             "-",
-            "Dm7b5",
-            "G7"
+            "Fm7b5",
+            "Bb7",
+            "Ebm7",
+            "Ab7"
           ]
         },
         {
           "label": "A",
           "chords": [
-            "Cm7b5",
-            "F7",
+            "Cm7",
+            "-",
+            "Fm7",
+            "-",
             "Bbm7",
             "Eb7",
             "Abmaj7",
+            "-"
+          ]
+        }
+      ],
+      "standardKey": "Eb"
+    },
+    {
+      "title": "Maiden Voyage",
+      "sections": [
+        {
+          "label": "A",
+          "chords": [
+            "Dmaj7#11",
             "-",
-            "Dm7b5",
-            "G7"
+            "-",
+            "-"
+          ]
+        },
+        {
+          "label": "B",
+          "chords": [
+            "Ebmaj7#11",
+            "-",
+            "-",
+            "-"
+          ]
+        },
+        {
+          "label": "A",
+          "chords": [
+            "Dmaj7#11",
+            "-",
+            "-",
+            "-"
+          ]
+        }
+      ],
+      "standardKey": "D"
+    },
+    {
+      "title": "Watermelon Man",
+      "sections": [
+        {
+          "label": "A",
+          "chords": [
+            "F7",
+            "-",
+            "-",
+            "-"
+          ]
+        },
+        {
+          "label": "A",
+          "chords": [
+            "F7",
+            "-",
+            "-",
+            "-"
+          ]
+        },
+        {
+          "label": "B",
+          "chords": [
+            "Bb7",
+            "-",
+            "-",
+            "-"
+          ]
+        },
+        {
+          "label": "A",
+          "chords": [
+            "F7",
+            "-",
+            "-",
+            "-"
+          ]
+        }
+      ],
+      "standardKey": ""
+    },
+    {
+      "title": "Blue in Green",
+      "sections": [
+        {
+          "label": "A",
+          "chords": [
+            "Dm7",
+            "G7",
+            "Cm7",
+            "F7",
+            "Bbmaj7",
+            "Ebmaj7",
+            "Am7b5",
+            "D7"
+          ]
+        },
+        {
+          "label": "A",
+          "chords": [
+            "Dm7",
+            "G7",
+            "Cm7",
+            "F7",
+            "Bbmaj7",
+            "Ebmaj7",
+            "Am7b5",
+            "D7"
           ]
         },
         {
@@ -1709,162 +1769,18 @@
         {
           "label": "A",
           "chords": [
-            "Cm7b5",
-            "F7",
-            "Bbm7",
-            "Eb7",
-            "Abmaj7",
-            "-",
-            "Dm7b5",
-            "G7"
-          ]
-        }
-      ]
-    },
-    {
-      "title": "Maiden Voyage",
-      "sections": [
-        {
-          "label": "A",
-          "chords": [
-            "Dm7sus4",
-            "-",
-            "-",
-            "-",
-            "Dm7sus4",
-            "-",
-            "-",
-            "-"
-          ]
-        },
-        {
-          "label": "B",
-          "chords": [
-            "Ebm7sus4",
-            "-",
-            "-",
-            "-",
-            "Ebm7sus4",
-            "-",
-            "-",
-            "-"
-          ]
-        },
-        {
-          "label": "A",
-          "chords": [
-            "Dm7sus4",
-            "-",
-            "-",
-            "-",
-            "Dm7sus4",
-            "-",
-            "-",
-            "-"
-          ]
-        }
-      ]
-    },
-    {
-      "title": "Watermelon Man",
-      "sections": [
-        {
-          "label": "A",
-          "chords": [
-            "F7",
-            "-",
-            "-",
-            "-",
-            "F7",
-            "-",
-            "-",
-            "-"
-          ]
-        },
-        {
-          "label": "B",
-          "chords": [
-            "Bb7",
-            "-",
-            "-",
-            "-",
-            "Bb7",
-            "-",
-            "-",
-            "-"
-          ]
-        },
-        {
-          "label": "A",
-          "chords": [
-            "F7",
-            "-",
-            "-",
-            "-",
-            "F7",
-            "-",
-            "-",
-            "-"
-          ]
-        },
-        {
-          "label": "C",
-          "chords": [
-            "C7",
-            "-",
-            "Bb7",
-            "-",
-            "F7",
-            "-",
-            "-",
-            "-"
-          ]
-        }
-      ]
-    },
-    {
-      "title": "Blue in Green",
-      "sections": [
-        {
-          "label": "A",
-          "chords": [
-            "Am7",
             "Dm7",
             "G7",
-            "Cmaj7",
-            "Fmaj7",
-            "Bm7b5",
-            "E7",
-            "Am7"
-          ]
-        },
-        {
-          "label": "B",
-          "chords": [
-            "Dm7",
-            "G7",
-            "Cmaj7",
-            "Fmaj7",
-            "Bm7b5",
-            "E7",
-            "Am7",
-            "-"
-          ]
-        },
-        {
-          "label": "A",
-          "chords": [
-            "Am7",
-            "Dm7",
-            "G7",
-            "Cmaj7",
-            "Fmaj7",
-            "Bm7b5",
-            "E7",
-            "Am7"
+            "Cm7",
+            "F7",
+            "Bbmaj7",
+            "Ebmaj7",
+            "Am7b5",
+            "D7"
           ]
         }
-      ]
+      ],
+      "standardKey": "C"
     },
     {
       "title": "Nardis",
@@ -1905,15 +1821,15 @@
             "F#m7b5",
             "B7",
             "Em7",
-            "-"
+            "A7"
           ]
         },
         {
           "label": "A",
           "chords": [
-            "Emaj7",
-            "Amaj7",
-            "Dmaj7",
+            "Em7",
+            "Am7",
+            "D7",
             "Gmaj7",
             "Cmaj7",
             "Fmaj7",
@@ -1921,6 +1837,7 @@
             "Emaj7"
           ]
         }
-      ]
+      ],
+      "standardKey": "E"
     }
 ]
