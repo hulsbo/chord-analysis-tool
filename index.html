@@ -1,814 +1,883 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jazz Chord Interval Analyzer</title>
-  <style>
-    :root {
-      --primary-color: #2980b9;
-      --primary-hover: #1c5980;
-      --danger-color: #e74c3c;
-      --danger-hover: #c0392b;
-      --warning-color: #f39c12;
-      --warning-hover: #e67e22;
-      --light-bg: #f9f9f9;
-      --white-bg: #fff;
-      --border-color: #ddd;
-      --text-color: #2c3e50;
-      --subtle-text: #555;
-      --border-radius: 8px;
-      --box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Jazz Chord Interval Analyzer</title>
+		<style>
+			:root {
+				--primary-color: #2980b9;
+				--primary-hover: #1c5980;
+				--danger-color: #e74c3c;
+				--danger-hover: #c0392b;
+				--warning-color: #f39c12;
+				--warning-hover: #e67e22;
+				--light-bg: #f9f9f9;
+				--white-bg: #fff;
+				--border-color: #ddd;
+				--text-color: #2c3e50;
+				--subtle-text: #555;
+				--border-radius: 8px;
+				--box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
-    /* New color variables for interval percentages */
-    --interval-green: #a8e6cf;
-    --interval-blue: #a7d9f7;
-    --interval-yellow: #fdfa7f;
-    --interval-red: #ff9999;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      margin: 2em;
-      background: var(--light-bg);
-      color: var(--text-color);
-    }
-    h1, h2 { color: var(--text-color); }
-    h1 { margin-bottom: 1.5em; }
-    h2 { margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5em; }
+				/* New color variables for interval percentages */
+				--interval-green: #a8e6cf;
+				--interval-blue: #a7d9f7;
+				--interval-yellow: #fdfa7f;
+				--interval-red: #ff9999;
+			}
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+				margin: 2em;
+				background: var(--light-bg);
+				color: var(--text-color);
+			}
+			h1,
+			h2 {
+				color: var(--text-color);
+			}
+			h1 {
+				margin-bottom: 1.5em;
+			}
+			h2 {
+				margin-top: 0;
+				border-bottom: 1px solid var(--border-color);
+				padding-bottom: 0.5em;
+			}
 
-    /* --- Buttons --- */
-    .btn {
-      border: none;
-      border-radius: 5px;
-      padding: 0.6em 1.2em;
-      cursor: pointer;
-      font-size: 0.95em;
-      font-weight: 500;
-      transition: background-color 0.2s, transform 0.1s;
-    }
-    .btn:active { transform: scale(0.98); }
+			/* --- Buttons --- */
+			.btn {
+				border: none;
+				border-radius: 5px;
+				padding: 0.6em 1.2em;
+				cursor: pointer;
+				font-size: 0.95em;
+				font-weight: 500;
+				transition: background-color 0.2s, transform 0.1s;
+			}
+			.btn:active {
+				transform: scale(0.98);
+			}
 
-    .btn-primary { background: var(--primary-color); color: var(--white-bg); }
-    .btn-primary:hover { background: var(--primary-hover); }
+			.btn-primary {
+				background: var(--primary-color);
+				color: var(--white-bg);
+			}
+			.btn-primary:hover {
+				background: var(--primary-hover);
+			}
 
-    .btn-danger { background: var(--danger-color); color: var(--white-bg); }
-    .btn-danger:hover { background: var(--danger-hover); }
+			.btn-danger {
+				background: var(--danger-color);
+				color: var(--white-bg);
+			}
+			.btn-danger:hover {
+				background: var(--danger-hover);
+			}
 
-    .btn-warning { background: var(--warning-color); color: var(--white-bg); }
-    .btn-warning:hover { background: var(--warning-hover); }
+			.btn-warning {
+				background: var(--warning-color);
+				color: var(--white-bg);
+			}
+			.btn-warning:hover {
+				background: var(--warning-hover);
+			}
 
-    .btn-discreet { background: #eee; color: #555; }
-    .btn-discreet:hover { background: #ddd; }
+			.btn-discreet {
+				background: #eee;
+				color: #555;
+			}
+			.btn-discreet:hover {
+				background: #ddd;
+			}
 
-    /* --- Form & Inputs --- */
-    .form-card {
-      background: var(--white-bg);
-      padding: 1.5em;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
-      margin-bottom: 2em;
-    }
-    .add-song-form input[type="text"] {
-      padding: 0.7em;
-      border-radius: 5px;
-      border: 1px solid var(--border-color);
-      font-size: 1em;
-      width: 100%;
-      box-sizing: border-box;
-      margin-bottom: 0.75em; /* Added margin for consistency */
-    }
-    #sections-container {
-      margin: 1em 0;
-      display: grid;
-      gap: 0.75em;
-    }
-    .section-field {
-      display: grid;
-      grid-template-columns: 1fr 2fr auto;
-      gap: 0.5em;
-      align-items: center;
-    }
-    .form-actions {
-      margin-top: 1.5em;
-      display: flex;
-      gap: 0.5em;
-      justify-content: space-between;
-    }
+			/* --- Form & Inputs --- */
+			.form-card {
+				background: var(--white-bg);
+				padding: 1.5em;
+				border-radius: var(--border-radius);
+				box-shadow: var(--box-shadow);
+				margin-bottom: 2em;
+			}
+			.add-song-form input[type='text'] {
+				padding: 0.7em;
+				border-radius: 5px;
+				border: 1px solid var(--border-color);
+				font-size: 1em;
+				width: 100%;
+				box-sizing: border-box;
+				margin-bottom: 0.75em; /* Added margin for consistency */
+			}
+			#sections-container {
+				margin: 1em 0;
+				display: grid;
+				gap: 0.75em;
+			}
+			.section-field {
+				display: grid;
+				grid-template-columns: 1fr 2fr auto;
+				gap: 0.5em;
+				align-items: center;
+			}
+			.form-actions {
+				margin-top: 1.5em;
+				display: flex;
+				gap: 0.5em;
+				justify-content: space-between;
+			}
 
-    /* --- Song List --- */
-    .song-list { margin-top: 2em; }
-    .empty-state { color: var(--subtle-text); text-align: center; font-style: italic; }
-    .song {
-      background: var(--white-bg);
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
-      margin-bottom: 1em;
-      transition: box-shadow 0.2s;
-      overflow: hidden; /* Contains the border radius for children */
-    }
-    .song:focus { outline: 2px solid var(--primary-color); outline-offset: 2px; }
-    .song-main {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1em;
-      padding: 0.75em 1em;
-      cursor: pointer;
-    }
-    .song:hover .song-main { background: #e3f1ff; }
+			/* --- Song List --- */
+			.song-list {
+				margin-top: 2em;
+			}
+			.empty-state {
+				color: var(--subtle-text);
+				text-align: center;
+				font-style: italic;
+			}
+			.song {
+				background: var(--white-bg);
+				border-radius: var(--border-radius);
+				box-shadow: var(--box-shadow);
+				margin-bottom: 1em;
+				transition: box-shadow 0.2s;
+				overflow: hidden; /* Contains the border radius for children */
+			}
+			.song:focus {
+				outline: 2px solid var(--primary-color);
+				outline-offset: 2px;
+			}
+			.song-main {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 1em;
+				padding: 0.75em 1em;
+				cursor: pointer;
+			}
+			.song:hover .song-main {
+				background: #e3f1ff;
+			}
 
-    .song-info {
-      flex: 1;
-      min-width: 0; /* Prevents flex item from overflowing */
-    }
-    .song-title {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 0.25em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .song-sections {
-      font-size: 0.9em;
-      color: var(--subtle-text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+			.song-info {
+				flex: 1;
+				min-width: 0; /* Prevents flex item from overflowing */
+			}
+			.song-title {
+				font-weight: bold;
+				display: block;
+				margin-bottom: 0.25em;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			.song-sections {
+				font-size: 0.9em;
+				color: var(--subtle-text);
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
 
-    .song-actions {
-      display: flex;
-      gap: 0.5em;
-    }
+			.song-actions {
+				display: flex;
+				gap: 0.5em;
+			}
 
-    /* --- Tables --- */
-    .interval-table, .song-details-table {
-      border-collapse: collapse;
-      font-size: 0.9em;
-      white-space: nowrap;
-    }
-    .interval-table th, .interval-table td,
-    .song-details-table th, .song-details-table td {
-      border: 1px solid var(--border-color);
-      padding: 0.7em 1.2em;
-      text-align: center;
-      font-size: 1.25em;
-    }
-    .interval-table th { background: #f0f0f0; }
-    .song-details-table th, .song-details-table .section-header {
-      font-size: 1.3em;
-    }
-    .song-details-table td:not(:last-child) {
-      margin-right: 1.5em;
-    }
+			/* --- Tables --- */
+			.interval-table,
+			.song-details-table {
+				border-collapse: collapse;
+				font-size: 0.9em;
+				white-space: nowrap;
+			}
+			.interval-table th,
+			.interval-table td,
+			.song-details-table th,
+			.song-details-table td {
+				border: 1px solid var(--border-color);
+				padding: 0.7em 1.2em;
+				text-align: center;
+				font-size: 1.25em;
+			}
+			.interval-table th {
+				background: #f0f0f0;
+			}
+			.song-details-table th,
+			.song-details-table .section-header {
+				font-size: 1.3em;
+			}
+			.song-details-table td:not(:last-child) {
+				margin-right: 1.5em;
+			}
 
-    /* --- Expanded Details --- */
-    .song-details {
-      display: none; /* Hidden by default */
-      padding: 0 1em 1em 1em;
-      background-color: #fdfdfd;
-      border-top: 1px solid #eaf6ff;
-    }
-    .song.expanded .song-details {
-      display: block; /* Shown when parent has .expanded class */
-    }
-    .song-details-table {
-      width: auto;
-      margin-top: 0.5em;
-      border-radius: 4px;
-      overflow: hidden;
-      font-size: 1em;
-    }
-    .song-details-table .section-header {
-      background: #eaf6ff;
-      font-weight: bold;
-      padding: 0.5em;
-      vertical-align: middle;
-    }
-    .song-details-table td {
-      padding: 0.5em 0.7em;
-      background: var(--white-bg);
-    }
-    .song-details-table .interval-value {
-      color: var(--subtle-text);
-      font-size: 0.95em;
-    }
+			/* --- Expanded Details --- */
+			.song-details {
+				display: none; /* Hidden by default */
+				padding: 0 1em 1em 1em;
+				background-color: #fdfdfd;
+				border-top: 1px solid #eaf6ff;
+			}
+			.song.expanded .song-details {
+				display: block; /* Shown when parent has .expanded class */
+			}
+			.song-details-table {
+				width: auto;
+				margin-top: 0.5em;
+				border-radius: 4px;
+				overflow: hidden;
+				font-size: 1em;
+			}
+			.song-details-table .section-header {
+				background: #eaf6ff;
+				font-weight: bold;
+				padding: 0.5em;
+				vertical-align: middle;
+			}
+			.song-details-table td {
+				padding: 0.5em 0.7em;
+				background: var(--white-bg);
+			}
+			.song-details-table .interval-value {
+				color: var(--subtle-text);
+				font-size: 0.95em;
+			}
 
-    /* --- Transpose Controls --- */
-    .transpose-controls {
-      display: flex;
-      align-items: center;
-      gap: 0.75em;
-      margin-top: 1em;
-      padding: 0.5em;
-      background-color: #eaf6ff;
-      border-radius: var(--border-radius);
-      flex-wrap: wrap; /* Allow wrapping on smaller screens */
-    }
-    .transpose-controls button {
-      padding: 0.5em 1em;
-      font-size: 0.9em;
-      border-radius: 5px;
-      border: 1px solid var(--border-color);
-      background-color: var(--white-bg);
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    .transpose-controls button:hover {
-      background-color: #f0f0f0;
-    }
-    .transpose-key-display {
-      font-weight: bold;
-      color: var(--primary-color);
-      min-width: 3em; /* Ensure it doesn't shrink too much */
-      text-align: center;
-    }
-    .transpose-label {
-      font-size: 0.9em;
-      color: var(--subtle-text);
-    }
+			/* --- Transpose Controls --- */
+			.transpose-controls {
+				display: flex;
+				align-items: center;
+				gap: 0.75em;
+				margin-top: 1em;
+				padding: 0.5em;
+				background-color: #eaf6ff;
+				border-radius: var(--border-radius);
+				flex-wrap: wrap; /* Allow wrapping on smaller screens */
+			}
+			.transpose-controls button {
+				padding: 0.5em 1em;
+				font-size: 0.9em;
+				border-radius: 5px;
+				border: 1px solid var(--border-color);
+				background-color: var(--white-bg);
+				cursor: pointer;
+				transition: background-color 0.2s;
+			}
+			.transpose-controls button:hover {
+				background-color: #f0f0f0;
+			}
+			.transpose-key-display {
+				font-weight: bold;
+				color: var(--primary-color);
+				min-width: 3em; /* Ensure it doesn't shrink too much */
+				text-align: center;
+			}
+			.transpose-label {
+				font-size: 0.9em;
+				color: var(--subtle-text);
+			}
 
-    /* --- Edit Form --- */
-    .edit-form {
-      display: none;
-      background: #f8f9fa;
-      padding: 1em;
-      border-top: 1px solid var(--border-color);
-    }
-    .edit-form.active {
-      display: block;
-    }
-    .edit-form input[type="text"] {
-      padding: 0.5em;
-      border-radius: 3px;
-      border: 1px solid var(--border-color);
-      font-size: 0.9em;
-      width: 100%;
-      box-sizing: border-box;
-      margin-bottom: 0.75em; /* Added margin for consistency */
-    }
-    .edit-section-field {
-      display: grid;
-      grid-template-columns: 1fr 2fr auto;
-      gap: 0.5em;
-      align-items: center;
-      margin-bottom: 0.5em;
-    }
-    .edit-actions {
-      margin-top: 1em;
-      display: flex;
-      gap: 0.5em;
-    }
+			/* --- Edit Form --- */
+			.edit-form {
+				display: none;
+				background: #f8f9fa;
+				padding: 1em;
+				border-top: 1px solid var(--border-color);
+			}
+			.edit-form.active {
+				display: block;
+			}
+			.edit-form input[type='text'] {
+				padding: 0.5em;
+				border-radius: 3px;
+				border: 1px solid var(--border-color);
+				font-size: 0.9em;
+				width: 100%;
+				box-sizing: border-box;
+				margin-bottom: 0.75em; /* Added margin for consistency */
+			}
+			.edit-section-field {
+				display: grid;
+				grid-template-columns: 1fr 2fr auto;
+				gap: 0.5em;
+				align-items: center;
+				margin-bottom: 0.5em;
+			}
+			.edit-actions {
+				margin-top: 1em;
+				display: flex;
+				gap: 0.5em;
+			}
 
-    /* --- Help Text --- */
-    .help-text {
-      font-size: 0.85em;
-      color: var(--subtle-text);
-      margin-top: 0.5em;
-      font-style: italic;
-    }
+			/* --- Help Text --- */
+			.help-text {
+				font-size: 0.85em;
+				color: var(--subtle-text);
+				margin-top: 0.5em;
+				font-style: italic;
+			}
 
-    /* --- Header for Import/Export --- */
-    .header-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5em;
-    }
+			/* --- Header for Import/Export --- */
+			.header-container {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 1.5em;
+			}
 
-    .header-buttons {
-      display: flex;
-      gap: 0.5em;
-    }
+			.header-buttons {
+				display: flex;
+				gap: 0.5em;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="header-container">
+			<h1>Jazz Chord Interval Analyzer</h1>
+			<div class="header-buttons">
+				<button type="button" id="load-default-songs-btn" class="btn btn-primary">Load Default Songs</button>
+				<button type="button" id="import-songs-btn" class="btn btn-primary">Import Songs</button>
+				<button type="button" id="export-songs-btn" class="btn btn-primary">Export Songs</button>
+				<input type="file" id="import-file-input" accept=".json" style="display: none" />
+			</div>
+		</div>
 
-  </style>
-</head>
-<body>
-  <div class="header-container">
-    <h1>Jazz Chord Interval Analyzer</h1>
-    <div class="header-buttons">
-      <button type="button" id="load-default-songs-btn" class="btn btn-primary">Load Default Songs</button>
-      <button type="button" id="import-songs-btn" class="btn btn-primary">Import Songs</button>
-      <button type="button" id="export-songs-btn" class="btn btn-primary">Export Songs</button>
-      <input type="file" id="import-file-input" accept=".json" style="display: none;">
-    </div>
-  </div>
+		<div id="global-interval-flex" style="display: flex; align-items: flex-start; gap: 2em; margin-bottom: 2em">
+			<div id="global-interval-stats"></div>
+			<div id="global-interval-bar"></div>
+		</div>
 
-  <div id="global-interval-flex" style="display: flex; align-items: flex-start; gap: 2em; margin-bottom: 2em;">
-    <div id="global-interval-stats"></div>
-    <div id="global-interval-bar"></div>
-  </div>
+		<div class="form-card">
+			<form class="add-song-form">
+				<h2>Add New Song</h2>
+				<input type="text" id="song-title" placeholder="Song Title (e.g., All of Me)" required />
+				<input type="text" id="song-standard-key" placeholder="Standard Key (e.g., C, G, Bb)" />
+				<div id="sections-container"></div>
+				<div class="help-text">
+					Tip: Use "-" to represent the same chord continuing for another bar (e.g., "Cmaj7 - Dm7 G7")
+				</div>
+				<div class="form-actions">
+					<button type="button" id="add-section-btn" class="btn btn-discreet">Add Section</button>
+					<button type="submit" class="btn btn-primary">Add Song</button>
+				</div>
+			</form>
+		</div>
 
-  <div class="form-card">
-    <form class="add-song-form">
-      <h2>Add New Song</h2>
-      <input type="text" id="song-title" placeholder="Song Title (e.g., All of Me)" required />
-      <input type="text" id="song-standard-key" placeholder="Standard Key (e.g., C, G, Bb)" />
-      <div id="sections-container"></div>
-      <div class="help-text">
-        Tip: Use "-" to represent the same chord continuing for another bar (e.g., "Cmaj7 - Dm7 G7")
-      </div>
-      <div class="form-actions">
-        <button type="button" id="add-section-btn" class="btn btn-discreet">Add Section</button>
-        <button type="submit" class="btn btn-primary">Add Song</button>
-      </div>
-    </form>
-  </div>
+		<button type="button" id="delete-all-btn" class="btn btn-danger">Delete All Songs</button>
 
-  <button type="button" id="delete-all-btn" class="btn btn-danger">Delete All Songs</button>
+		<div class="song-list" id="song-list"></div>
 
-  <div class="song-list" id="song-list"></div>
+		<script>
+			// Chord root note mapping (C=0, C#/Db=1, ..., B=11)
+			const NOTE_TO_NUM = {
+				C: 0,
+				'B#': 0, // B# enharmonically C
+				'C#': 1,
+				Db: 1,
+				D: 2,
+				'D#': 3,
+				Eb: 3,
+				E: 4,
+				Fb: 4, // Fb enharmonically E
+				F: 5,
+				'E#': 5, // E# enharmonically F
+				'F#': 6,
+				Gb: 6,
+				G: 7,
+				'G#': 8,
+				Ab: 8,
+				A: 9,
+				'A#': 10,
+				Bb: 10,
+				B: 11,
+				Cb: 11, // Cb enharmonically B
+			};
 
-  <script>// Chord root note mapping (C=0, C#/Db=1, ..., B=11)
-	const NOTE_TO_NUM = {
-	  'C': 0, 'B#': 0, // B# enharmonically C
-	  'C#': 1, 'Db': 1,
-	  'D': 2,
-	  'D#': 3, 'Eb': 3,
-	  'E': 4, 'Fb': 4, // Fb enharmonically E
-	  'F': 5, 'E#': 5, // E# enharmonically F
-	  'F#': 6, 'Gb': 6,
-	  'G': 7,
-	  'G#': 8, 'Ab': 8,
-	  'A': 9,
-	  'A#': 10, 'Bb': 10,
-	  'B': 11, 'Cb': 11 // Cb enharmonically B
-	};
-	
-	// Mappings from numeric value back to note string, preferring sharps for up and flats for down
-	const NUM_TO_NOTE_SHARP = [
-	  'C', 'C#', 'D', 'D#', 'E', 'F',
-	  'F#', 'G', 'G#', 'A', 'A#', 'B'
-	];
-	
-	const NUM_TO_NOTE_FLAT = [
-	  'C', 'Db', 'D', 'Eb', 'E', 'F',
-	  'Gb', 'G', 'Ab', 'A', 'Bb', 'B'
-	];
-	
-	// Helper to normalize key strings for lookup in NOTE_TO_NUM
-	function formatKeyForLookup(keyString) {
-	  if (!keyString) return '';
-	  return keyString.charAt(0).toUpperCase() + keyString.slice(1);
-	}
-	
-	// Helper to calculate new key name for display, preferring common flat spellings where appropriate
-	const calculateNewKeyName = (baseKeyNum, semitones) => {
-		const newKeyNum = (baseKeyNum + semitones % 12 + 12) % 12;
-		const sharpNote = NUM_TO_NOTE_SHARP[newKeyNum];
-		const flatNote = NUM_TO_NOTE_FLAT[newKeyNum];
-		
-		// Prefer common flat names like Bb, Eb, Ab, Db, Gb for display
-		const commonFlats = ['Bb', 'Eb', 'Ab', 'Db', 'Gb'];
-		if (commonFlats.includes(flatNote)) {
-			return flatNote;
-		}
-		return sharpNote; // Otherwise, prefer sharp name
-	};
-	
-	/**
-	 * Analyzes a chord collection to determine the preferred notation (sharp vs flat)
-	 * based on the existing chord symbols in the collection.
-	 * @param {string[]} chords Array of chord strings to analyze
-	 * @returns {string} 'flat' if flats are predominant, 'sharp' otherwise
-	 */
-	function analyzeNotationPreference(chords) {
-	  let flatCount = 0;
-	  let sharpCount = 0;
-	  
-	  chords.forEach(chord => {
-		if (chord === '-') return; // Skip continuation markers
-		
-		const match = chord.match(/^([A-G][#b]?)/i);
-		if (match) {
-		  const root = match[1];
-		  if (root.includes('b')) flatCount++;
-		  if (root.includes('#')) sharpCount++;
-		}
-	  });
-	  
-	  return flatCount > sharpCount ? 'flat' : 'sharp';
-	}
-	
-	/**
-	 * Determines the preferred notation for a transposed chord based on context
-	 * @param {string} originalChord The original chord before transposition
-	 * @param {number} targetRootNum The numeric value of the target root (0-11)
-	 * @param {number} semitones The transposition interval
-	 * @param {string} contextPreference Overall preference from chord collection analysis
-	 * @returns {string} The preferred root note for the transposed chord
-	 */
-	function getPreferredTransposedRoot(originalChord, targetRootNum, semitones, contextPreference = 'sharp') {
-	  // Parse original chord to understand its notation preference
-	  const originalMatch = originalChord.match(/^([A-G][#b]?)/i);
-	  if (!originalMatch) return NUM_TO_NOTE_SHARP[targetRootNum];
-	  
-	  const originalRoot = originalMatch[1];
-	  const originalUsesFlat = originalRoot.includes('b');
-	  const originalUsesSharp = originalRoot.includes('#');
-	  
-	  const sharpNote = NUM_TO_NOTE_SHARP[targetRootNum];
-	  const flatNote = NUM_TO_NOTE_FLAT[targetRootNum];
-	  
-	  // If the target note is natural (no accidental needed), return it
-	  if (sharpNote === flatNote) return sharpNote;
-	  
-	  // Key signature and circle of fifths considerations
-	  // Common flat keys: F, Bb, Eb, Ab, Db, Gb, Cb
-	  // Common sharp keys: G, D, A, E, B, F#, C#
-	  const flatKeyContext = ['F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb'];
-	  const sharpKeyContext = ['G', 'D', 'A', 'E', 'B', 'F#', 'C#'];
-	  
-	  // If original chord used flats, try to maintain flat notation where musically sensible
-	  if (originalUsesFlat) {
-		// Prefer flats for common flat key centers
-		if (['Db', 'Eb', 'Ab', 'Bb', 'Gb'].includes(flatNote)) {
-		  return flatNote;
-		}
-	  }
-	  
-	  // If original chord used sharps, try to maintain sharp notation where musically sensible  
-	  if (originalUsesSharp) {
-		// Prefer sharps for common sharp key centers
-		if (['C#', 'D#', 'F#', 'G#', 'A#'].includes(sharpNote)) {
-		  return sharpNote;
-		}
-	  }
-	  
-	  // Fall back to context preference from the overall chord collection
-	  if (contextPreference === 'flat' && ['Db', 'Eb', 'Ab', 'Bb', 'Gb'].includes(flatNote)) {
-		return flatNote;
-	  }
-	  
-	  // Default to sharp notation for most cases
-	  return sharpNote;
-	}
-	
-	function parseChordRoot(chord) {
-	  // Handle "-" for same chord continuation
-	  if (chord === '-') return '-';
-	
-	  // Extract root with improved regex that handles edge cases
-	  const match = chord.match(/^([A-G](?:#|b)?)/i);
-	  if (!match) return null;
-	  
-	  let root = match[1];
-	  // Normalize the root note formatting
-	  root = root.charAt(0).toUpperCase() + root.slice(1).toLowerCase();
-	  
-	  return NOTE_TO_NUM[root] !== undefined ? NOTE_TO_NUM[root] : null;
-	}
-	
-	/**
-	 * Transposes a chord by a given number of semitones using intelligent notation preference.
-	 * @param {string} chord The chord string (e.g., "Cmaj7", "Dm7", "G7b9").
-	 * @param {number} semitones The number of semitones to transpose by (+ for up, - for down).
-	 * @param {string} [contextPreference='sharp'] Overall notation preference from analyzing chord collection.
-	 * @returns {string} The transposed chord string.
-	 */
-	function transposeChord(chord, semitones, contextPreference = 'sharp') {
-	  if (chord === '-') return '-';
-	
-	  // Improved regex to capture root and suffix more reliably
-	  const match = chord.match(/^([A-G][#b]?)(.*)$/i);
-	  if (!match) return chord; // Return original if not a recognized chord format
-	
-	  let root = match[1];
-	  const suffix = match[2];
-	  
-	  // Normalize root note formatting
-	  root = root.charAt(0).toUpperCase() + root.slice(1).toLowerCase();
-	
-	  let rootNum = NOTE_TO_NUM[root];
-	  if (rootNum === undefined) return chord;
-	
-	  // Calculate target root number
-	  const targetRootNum = (rootNum + (semitones % 12) + 12) % 12;
-	  
-	  // Get the preferred notation for the transposed chord
-	  const newRoot = getPreferredTransposedRoot(chord, targetRootNum, semitones, contextPreference);
-	  
-	  return newRoot + suffix;
-	}
-	
-	/**
-	 * Transposes an array of chords with consistent notation preference.
-	 * @param {string[]} chords Array of chord strings to transpose.
-	 * @param {number} semitones Number of semitones to transpose by.
-	 * @returns {string[]} Array of transposed chord strings.
-	 */
-	function transposeChordProgression(chords, semitones) {
-	  // Analyze the chord collection to determine overall notation preference
-	  const contextPreference = analyzeNotationPreference(chords);
-	  
-	  return chords.map(chord => transposeChord(chord, semitones, contextPreference));
-	}
+			// Mappings from numeric value back to note string, preferring sharps for up and flats for down
+			const NUM_TO_NOTE_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-/**
- * Calculates chromatic intervals (mod 12) between a sequence of base notes.
- *
- * @param {Array<number|string|null>} baseNotes - An array of parsed base note numbers (0-11),
- * '-' for continuation, or null for unparseable chords.
- * @param {number|null} [initialLastValidNote=null] - The root note of the chord immediately
- * preceding the first chord in `baseNotes`. Used for calculating the interval to the first chord.
- * If null, the first chord will have no interval.
- * @returns {Array<{sign: string, val: number|string}>} An array of interval objects.
- */
-function getIntervals(baseNotes, initialLastValidNote = null) {
-  const intervals = [];
-  let lastValidNote = initialLastValidNote;
+			const NUM_TO_NOTE_FLAT = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
-  for (let i = 0; i < baseNotes.length; ++i) {
-    const currentNote = baseNotes[i];
+			// Helper to normalize key strings for lookup in NOTE_TO_NUM
+			function formatKeyForLookup(keyString) {
+				if (!keyString) return '';
+				return keyString.charAt(0).toUpperCase() + keyString.slice(1);
+			}
 
-    if (currentNote === '-' || currentNote === null) {
-      // Dash or invalid chord - no interval
-      intervals.push({ sign: '', val: '-' });
-      continue;
-    }
+			// Helper to calculate new key name for display, preferring common flat spellings where appropriate
+			const calculateNewKeyName = (baseKeyNum, semitones) => {
+				const newKeyNum = (baseKeyNum + (semitones % 12) + 12) % 12;
+				const sharpNote = NUM_TO_NOTE_SHARP[newKeyNum];
+				const flatNote = NUM_TO_NOTE_FLAT[newKeyNum];
 
-    if (lastValidNote === null) {
-      // First valid chord in the sequence (or first of the song) - no interval
-      intervals.push({ sign: '', val: '-' });
-      lastValidNote = currentNote;
-      continue;
-    }
+				// Prefer common flat names like Bb, Eb, Ab, Db, Gb for display
+				const commonFlats = ['Bb', 'Eb', 'Ab', 'Db', 'Gb'];
+				if (commonFlats.includes(flatNote)) {
+					return flatNote;
+				}
+				return sharpNote; // Otherwise, prefer sharp name
+			};
 
-    // Check if same base note as previous valid chord
-    if (currentNote === lastValidNote) {
-      intervals.push({ sign: '', val: '-' });
-      continue;
-    }
+			/**
+			 * Analyzes a chord collection to determine the preferred notation (sharp vs flat)
+			 * based on the existing chord symbols in the collection.
+			 * @param {string[]} chords Array of chord strings to analyze
+			 * @returns {string} 'flat' if flats are predominant, 'sharp' otherwise
+			 */
+			function analyzeNotationPreference(chords) {
+				let flatCount = 0;
+				let sharpCount = 0;
 
-    let up = (currentNote - lastValidNote + 12) % 12;
-    let down = (lastValidNote - currentNote + 12) % 12;
-    let sign, val;
-    if (up === 6 && down === 6) {
-      // Tritone: always choose +6 for consistency
-      sign = '+';
-      val = 6;
-    } else if (up <= down) {
-      sign = '+';
-      val = up; // Corrected: up is already the interval value
-    } else {
-      sign = '-';
-      val = down; // Corrected: down is already the interval value
-    }
-    intervals.push({ sign, val });
-    lastValidNote = currentNote; // Update lastValidNote for the next iteration
-  }
-  return intervals;
-}
+				chords.forEach((chord) => {
+					if (chord === '-') return; // Skip continuation markers
 
-function intervalFrequency(intervals) {
-  // Count frequency of intervals 0-6 (ignore sign and dashes)
-  const freq = Array(7).fill(0);
-  intervals.forEach(i => {
-    if (typeof i === 'object' && typeof i.val === 'number' && i.val >= 0 && i.val <= 6) {
-      freq[i.val]++;
-    }
-  });
-  return freq;
-}
+					const match = chord.match(/^([A-G][#b]?)/i);
+					if (match) {
+						const root = match[1];
+						if (root.includes('b')) flatCount++;
+						if (root.includes('#')) sharpCount++;
+					}
+				});
 
-// --- START-UP FETCH ---
+				return flatCount > sharpCount ? 'flat' : 'sharp';
+			}
 
-async function fetchAndSaveSongs() {
-try {
-	const response = await fetch('/jazz_songs_data.json');
-	const data = await response.json();
-	saveSongs(data);
-	renderSongs();
-	showMessageModal('Songs imported successfully!'); // Use custom modal
-} catch (error) {
-	console.error('Failed to fetch JSON:', error);
-}
-}
+			/**
+			 * Determines the preferred notation for a transposed chord based on context
+			 * @param {string} originalChord The original chord before transposition
+			 * @param {number} targetRootNum The numeric value of the target root (0-11)
+			 * @param {number} semitones The transposition interval
+			 * @param {string} contextPreference Overall preference from chord collection analysis
+			 * @returns {string} The preferred root note for the transposed chord
+			 */
+			function getPreferredTransposedRoot(originalChord, targetRootNum, semitones, contextPreference = 'sharp') {
+				// Parse original chord to understand its notation preference
+				const originalMatch = originalChord.match(/^([A-G][#b]?)/i);
+				if (!originalMatch) return NUM_TO_NOTE_SHARP[targetRootNum];
 
-function loadDefaultSongs() {
-	showConfirmationModal('Warning, this replaces any edits you\'ve done to pre-existing songs unless renamed.', fetchAndSaveSongs);
-}
+				const originalRoot = originalMatch[1];
+				const originalUsesFlat = originalRoot.includes('b');
+				const originalUsesSharp = originalRoot.includes('#');
 
-// --- LOCAL STORAGE FUNCTIONS ---
-const LOCAL_STORAGE_KEY = 'jazzChordAnalyzerSongs';
+				const sharpNote = NUM_TO_NOTE_SHARP[targetRootNum];
+				const flatNote = NUM_TO_NOTE_FLAT[targetRootNum];
 
-function saveSongs(songs) {
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(songs));
-}
+				// If the target note is natural (no accidental needed), return it
+				if (sharpNote === flatNote) return sharpNote;
 
-function loadSongs() {
-  const storedSongs = localStorage.getItem(LOCAL_STORAGE_KEY);
-  return storedSongs ? JSON.parse(storedSongs) : [];
-}
-// --- END LOCAL STORAGE FUNCTIONS ---
+				// Key signature and circle of fifths considerations
+				// Common flat keys: F, Bb, Eb, Ab, Db, Gb, Cb
+				// Common sharp keys: G, D, A, E, B, F#, C#
+				const flatKeyContext = ['F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb'];
+				const sharpKeyContext = ['G', 'D', 'A', 'E', 'B', 'F#', 'C#'];
 
-// --- IMPORT/EXPORT FUNCTIONS ---
-function exportSongs() {
-  const songs = loadSongs();
-  if (songs.length === 0) {
-    showMessageModal('There are no songs to export.'); // Use custom modal
-    return;
-  }
-  const dataStr = JSON.stringify(songs, null, 2); // Pretty print JSON
-  const blob = new Blob([dataStr], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'jazz_songs_data.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url); // Clean up
-  showMessageModal('Songs exported successfully!'); // Use custom modal
-}
+				// If original chord used flats, try to maintain flat notation where musically sensible
+				if (originalUsesFlat) {
+					// Prefer flats for common flat key centers
+					if (['Db', 'Eb', 'Ab', 'Bb', 'Gb'].includes(flatNote)) {
+						return flatNote;
+					}
+				}
 
-function importSongs() {
-  const fileInput = document.getElementById('import-file-input');
-  fileInput.click(); // Trigger click on the hidden file input
-}
+				// If original chord used sharps, try to maintain sharp notation where musically sensible
+				if (originalUsesSharp) {
+					// Prefer sharps for common sharp key centers
+					if (['C#', 'D#', 'F#', 'G#', 'A#'].includes(sharpNote)) {
+						return sharpNote;
+					}
+				}
 
-document.getElementById('import-file-input').addEventListener('change', function(event) {
-  const file = event.target.files[0];
-  if (!file) {
-    return;
-  }
+				// Fall back to context preference from the overall chord collection
+				if (contextPreference === 'flat' && ['Db', 'Eb', 'Ab', 'Bb', 'Gb'].includes(flatNote)) {
+					return flatNote;
+				}
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const importedData = JSON.parse(e.target.result);
-      // Basic validation: Check if it's an array and contains objects with 'title' and 'sections'
-      if (!Array.isArray(importedData) || !importedData.every(song =>
-          typeof song === 'object' && song !== null && 'title' in song && 'sections' in song && Array.isArray(song.sections)
-      )) {
-        showMessageModal('Invalid JSON file format. Please upload a file with song list data.'); // Use custom modal
-        return;
-      }
+				// Default to sharp notation for most cases
+				return sharpNote;
+			}
 
-      // Merge or replace? For simplicity, let's replace for now. User can delete all if they want to merge.
-      showConfirmationModal('Imported songs will replace existing songs. Continue?', () => { // Use custom modal
-        saveSongs(importedData);
-        renderSongs();
-        showMessageModal('Songs imported successfully!'); // Use custom modal
-      });
-    } catch (error) {
-      console.error('Error parsing JSON:', error);
-      showMessageModal('Error reading or parsing the file. Please ensure it is a valid JSON file.'); // Use custom modal
-    } finally {
-      // Clear the file input value so the same file can be selected again if needed
-      event.target.value = '';
-    }
-  };
-  reader.onerror = function() {
-    showMessageModal('Error reading file.'); // Use custom modal
-    event.target.value = ''; // Clear input on error
-  };
-  reader.readAsText(file);
-});
-// --- END IMPORT/EXPORT FUNCTIONS ---
+			function parseChordRoot(chord) {
+				// Handle "-" for same chord continuation
+				if (chord === '-') return '-';
 
-function createSectionField(label = '', chords = '') {
-  const div = document.createElement('div');
-  div.className = 'section-field';
-  div.innerHTML = `
+				// Extract root with improved regex that handles edge cases
+				const match = chord.match(/^([A-G](?:#|b)?)/i);
+				if (!match) return null;
+
+				let root = match[1];
+				// Normalize the root note formatting
+				root = root.charAt(0).toUpperCase() + root.slice(1).toLowerCase();
+
+				return NOTE_TO_NUM[root] !== undefined ? NOTE_TO_NUM[root] : null;
+			}
+
+			/**
+			 * Transposes a chord by a given number of semitones using intelligent notation preference.
+			 * @param {string} chord The chord string (e.g., "Cmaj7", "Dm7", "G7b9").
+			 * @param {number} semitones The number of semitones to transpose by (+ for up, - for down).
+			 * @param {string} [contextPreference='sharp'] Overall notation preference from analyzing chord collection.
+			 * @returns {string} The transposed chord string.
+			 */
+			function transposeChord(chord, semitones, contextPreference = 'sharp') {
+				if (chord === '-') return '-';
+
+				// Improved regex to capture root and suffix more reliably
+				const match = chord.match(/^([A-G][#b]?)(.*)$/i);
+				if (!match) return chord; // Return original if not a recognized chord format
+
+				let root = match[1];
+				const suffix = match[2];
+
+				// Normalize root note formatting
+				root = root.charAt(0).toUpperCase() + root.slice(1).toLowerCase();
+
+				let rootNum = NOTE_TO_NUM[root];
+				if (rootNum === undefined) return chord;
+
+				// Calculate target root number
+				const targetRootNum = (rootNum + (semitones % 12) + 12) % 12;
+
+				// Get the preferred notation for the transposed chord
+				const newRoot = getPreferredTransposedRoot(chord, targetRootNum, semitones, contextPreference);
+
+				return newRoot + suffix;
+			}
+
+			/**
+			 * Transposes an array of chords with consistent notation preference.
+			 * @param {string[]} chords Array of chord strings to transpose.
+			 * @param {number} semitones Number of semitones to transpose by.
+			 * @returns {string[]} Array of transposed chord strings.
+			 */
+			function transposeChordProgression(chords, semitones) {
+				// Analyze the chord collection to determine overall notation preference
+				const contextPreference = analyzeNotationPreference(chords);
+
+				return chords.map((chord) => transposeChord(chord, semitones, contextPreference));
+			}
+
+			/**
+			 * Calculates chromatic intervals (mod 12) between a sequence of base notes.
+			 *
+			 * @param {Array<number|string|null>} baseNotes - An array of parsed base note numbers (0-11),
+			 * '-' for continuation, or null for unparseable chords.
+			 * @param {number|null} [initialLastValidNote=null] - The root note of the chord immediately
+			 * preceding the first chord in `baseNotes`. Used for calculating the interval to the first chord.
+			 * If null, the first chord will have no interval.
+			 * @returns {Array<{sign: string, val: number|string}>} An array of interval objects.
+			 */
+			function getIntervals(baseNotes, initialLastValidNote = null) {
+				const intervals = [];
+				let lastValidNote = initialLastValidNote;
+
+				for (let i = 0; i < baseNotes.length; ++i) {
+					const currentNote = baseNotes[i];
+
+					if (currentNote === '-' || currentNote === null) {
+						// Dash or invalid chord - no interval
+						intervals.push({ sign: '', val: '-' });
+						continue;
+					}
+
+					if (lastValidNote === null) {
+						// First valid chord in the sequence (or first of the song) - no interval
+						intervals.push({ sign: '', val: '-' });
+						lastValidNote = currentNote;
+						continue;
+					}
+
+					// Check if same base note as previous valid chord
+					if (currentNote === lastValidNote) {
+						intervals.push({ sign: '', val: '-' });
+						continue;
+					}
+
+					let up = (currentNote - lastValidNote + 12) % 12;
+					let down = (lastValidNote - currentNote + 12) % 12;
+					let sign, val;
+					if (up === 6 && down === 6) {
+						// Tritone: always choose +6 for consistency
+						sign = '+';
+						val = 6;
+					} else if (up <= down) {
+						sign = '+';
+						val = up; // Corrected: up is already the interval value
+					} else {
+						sign = '-';
+						val = down; // Corrected: down is already the interval value
+					}
+					intervals.push({ sign, val });
+					lastValidNote = currentNote; // Update lastValidNote for the next iteration
+				}
+				return intervals;
+			}
+
+			function intervalFrequency(intervals) {
+				// Count frequency of intervals 0-6 (ignore sign and dashes)
+				const freq = Array(7).fill(0);
+				intervals.forEach((i) => {
+					if (typeof i === 'object' && typeof i.val === 'number' && i.val >= 0 && i.val <= 6) {
+						freq[i.val]++;
+					}
+				});
+				return freq;
+			}
+
+			// --- START-UP FETCH ---
+
+			async function fetchAndSaveSongs() {
+				try {
+					const response = await fetch('/jazz_songs_data.json');
+					const data = await response.json();
+					saveSongs(data);
+					renderSongs();
+					showMessageModal('Songs imported successfully!'); // Use custom modal
+				} catch (error) {
+					console.error('Failed to fetch JSON:', error);
+				}
+			}
+
+			function loadDefaultSongs() {
+				showConfirmationModal(
+					"Warning, this replaces any edits you've done to pre-existing songs unless renamed.",
+					fetchAndSaveSongs
+				);
+			}
+
+			// --- LOCAL STORAGE FUNCTIONS ---
+			const LOCAL_STORAGE_KEY = 'jazzChordAnalyzerSongs';
+
+			function saveSongs(songs) {
+				localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(songs));
+			}
+
+			function loadSongs() {
+				const storedSongs = localStorage.getItem(LOCAL_STORAGE_KEY);
+				return storedSongs ? JSON.parse(storedSongs) : [];
+			}
+			// --- END LOCAL STORAGE FUNCTIONS ---
+
+			// --- IMPORT/EXPORT FUNCTIONS ---
+			function exportSongs() {
+				const songs = loadSongs();
+				if (songs.length === 0) {
+					showMessageModal('There are no songs to export.'); // Use custom modal
+					return;
+				}
+				const dataStr = JSON.stringify(songs, null, 2); // Pretty print JSON
+				const blob = new Blob([dataStr], { type: 'application/json' });
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = 'jazz_songs_data.json';
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url); // Clean up
+				showMessageModal('Songs exported successfully!'); // Use custom modal
+			}
+
+			function importSongs() {
+				const fileInput = document.getElementById('import-file-input');
+				fileInput.click(); // Trigger click on the hidden file input
+			}
+
+			document.getElementById('import-file-input').addEventListener('change', function (event) {
+				const file = event.target.files[0];
+				if (!file) {
+					return;
+				}
+
+				const reader = new FileReader();
+				reader.onload = function (e) {
+					try {
+						const importedData = JSON.parse(e.target.result);
+						// Basic validation: Check if it's an array and contains objects with 'title' and 'sections'
+						if (
+							!Array.isArray(importedData) ||
+							!importedData.every(
+								(song) =>
+									typeof song === 'object' &&
+									song !== null &&
+									'title' in song &&
+									'sections' in song &&
+									Array.isArray(song.sections)
+							)
+						) {
+							showMessageModal('Invalid JSON file format. Please upload a file with song list data.'); // Use custom modal
+							return;
+						}
+
+						// Merge or replace? For simplicity, let's replace for now. User can delete all if they want to merge.
+						showConfirmationModal('Imported songs will replace existing songs. Continue?', () => {
+							// Use custom modal
+							saveSongs(importedData);
+							renderSongs();
+							showMessageModal('Songs imported successfully!'); // Use custom modal
+						});
+					} catch (error) {
+						console.error('Error parsing JSON:', error);
+						showMessageModal('Error reading or parsing the file. Please ensure it is a valid JSON file.'); // Use custom modal
+					} finally {
+						// Clear the file input value so the same file can be selected again if needed
+						event.target.value = '';
+					}
+				};
+				reader.onerror = function () {
+					showMessageModal('Error reading file.'); // Use custom modal
+					event.target.value = ''; // Clear input on error
+				};
+				reader.readAsText(file);
+			});
+			// --- END IMPORT/EXPORT FUNCTIONS ---
+
+			function createSectionField(label = '', chords = '') {
+				const div = document.createElement('div');
+				div.className = 'section-field';
+				div.innerHTML = `
     <input type="text" class="section-label" placeholder="Section (e.g. A, B)" value="${label}" required>
     <input type="text" class="section-chords" placeholder="Chords (e.g. Cmaj7 - Dm7 G7)" value="${chords}" required>
     <button type="button" class="btn btn-discreet remove-section-btn">Remove</button>
   `;
-  div.querySelector('.remove-section-btn').onclick = () => div.remove();
-  return div;
-}
+				div.querySelector('.remove-section-btn').onclick = () => div.remove();
+				return div;
+			}
 
-function createEditSectionField(label = '', chords = '') {
-  const div = document.createElement('div');
-  div.className = 'edit-section-field';
-  div.innerHTML = `
+			function createEditSectionField(label = '', chords = '') {
+				const div = document.createElement('div');
+				div.className = 'edit-section-field';
+				div.innerHTML = `
     <input type="text" class="edit-section-label" placeholder="Section" value="${label}" required>
     <input type="text" class="edit-section-chords" placeholder="Chords (use - for same chord)" value="${chords}" required>
     <button type="button" class="btn btn-discreet remove-edit-section-btn">Remove</button>
   `;
-  div.querySelector('.remove-edit-section-btn').onclick = () => div.remove();
-  return div;
-}
+				div.querySelector('.remove-edit-section-btn').onclick = () => div.remove();
+				return div;
+			}
 
-function setupSectionFields() {
-  const container = document.getElementById('sections-container');
-  container.innerHTML = '';
-  // Add one section by default
-  container.appendChild(createSectionField());
-}
+			function setupSectionFields() {
+				const container = document.getElementById('sections-container');
+				container.innerHTML = '';
+				// Add one section by default
+				container.appendChild(createSectionField());
+			}
 
-document.getElementById('add-section-btn').onclick = function() {
-  document.getElementById('sections-container').appendChild(createSectionField());
-};
+			document.getElementById('add-section-btn').onclick = function () {
+				document.getElementById('sections-container').appendChild(createSectionField());
+			};
 
-document.getElementById('delete-all-btn').onclick = function() {
-  // Using custom modal instead of alert/confirm
-  showConfirmationModal('Are you sure you want to delete all songs? This cannot be undone.', () => {
-    localStorage.clear(); // Clears all data in localStorage for this origin
-    // Clear all song transpose states as well
-    songTransposeStates.clear();
-    renderSongs(); // Re-render to show empty state
-  });
-};
+			document.getElementById('delete-all-btn').onclick = function () {
+				// Using custom modal instead of alert/confirm
+				showConfirmationModal('Are you sure you want to delete all songs? This cannot be undone.', () => {
+					localStorage.clear(); // Clears all data in localStorage for this origin
+					// Clear all song transpose states as well
+					songTransposeStates.clear();
+					renderSongs(); // Re-render to show empty state
+				});
+			};
 
-// Global map to store transpose state for each song (indexed by its original index in the songs array)
-// Stores: { semitones: number, currentKey: string, originalKey: string, isValid: boolean, originalKeyNum: number|undefined }
-const songTransposeStates = new Map(); 
+			// Global map to store transpose state for each song (indexed by its original index in the songs array)
+			// Stores: { semitones: number, currentKey: string, originalKey: string, isValid: boolean, originalKeyNum: number|undefined }
+			const songTransposeStates = new Map();
 
-function renderSongs() {
-  const songList = document.getElementById('song-list');
-  songList.innerHTML = '';
-  const songs = loadSongs();
+			function renderSongs() {
+				const songList = document.getElementById('song-list');
+				songList.innerHTML = '';
+				const songs = loadSongs();
 
-  renderGlobalIntervalStats();
+				renderGlobalIntervalStats();
 
-  if (songs.length === 0) {
-    songList.innerHTML = '<p class="empty-state">No songs yet. Add one using the form above!</p>';
-    return;
-  }
+				if (songs.length === 0) {
+					songList.innerHTML = '<p class="empty-state">No songs yet. Add one using the form above!</p>';
+					return;
+				}
 
-  songs.forEach((song, idx) => {
-    // Initialize transpose state if not already present
-    if (!songTransposeStates.has(idx)) {
-      const originalKeyInput = song.standardKey ? song.standardKey.trim() : '';
-      let initialOriginalKey = originalKeyInput;
-      let initialCurrentKey = originalKeyInput;
-      let initialSemitones = 0;
-      let isValidOriginalKey = true;
+				songs.forEach((song, idx) => {
+					// Initialize transpose state if not already present
+					if (!songTransposeStates.has(idx)) {
+						const originalKeyInput = song.standardKey ? song.standardKey.trim() : '';
+						let initialOriginalKey = originalKeyInput;
+						let initialCurrentKey = originalKeyInput;
+						let initialSemitones = 0;
+						let isValidOriginalKey = true;
 
-      // Use the new helper for lookup
-      const lookupKey = formatKeyForLookup(originalKeyInput);
-      const originalKeyNum = NOTE_TO_NUM[lookupKey];
+						// Use the new helper for lookup
+						const lookupKey = formatKeyForLookup(originalKeyInput);
+						const originalKeyNum = NOTE_TO_NUM[lookupKey];
 
-      if (originalKeyInput && originalKeyNum === undefined) {
-          // If a key was provided but not recognized
-          showMessageModal(`Warning: Standard key "${originalKeyInput}" for song "${song.title}" is not recognized. Transpose functions will be limited.`);
-          initialOriginalKey = originalKeyInput; // Keep original input for display in reset button if needed
-          initialCurrentKey = 'Key Error';
-          isValidOriginalKey = false;
-      } else if (!originalKeyInput) {
-          // If no key was provided
-          initialOriginalKey = 'N/A'; // For display on reset button
-          initialCurrentKey = 'N/A';
-          isValidOriginalKey = false;
-      } else {
-          // If valid, use the calculateNewKeyName to get the preferred display format for current key
-          initialCurrentKey = calculateNewKeyName(originalKeyNum, 0);
-      }
+						if (originalKeyInput && originalKeyNum === undefined) {
+							// If a key was provided but not recognized
+							showMessageModal(
+								`Warning: Standard key "${originalKeyInput}" for song "${song.title}" is not recognized. Transpose functions will be limited.`
+							);
+							initialOriginalKey = originalKeyInput; // Keep original input for display in reset button if needed
+							initialCurrentKey = 'Key Error';
+							isValidOriginalKey = false;
+						} else if (!originalKeyInput) {
+							// If no key was provided
+							initialOriginalKey = 'N/A'; // For display on reset button
+							initialCurrentKey = 'N/A';
+							isValidOriginalKey = false;
+						} else {
+							// If valid, use the calculateNewKeyName to get the preferred display format for current key
+							initialCurrentKey = calculateNewKeyName(originalKeyNum, 0);
+						}
 
-      songTransposeStates.set(idx, {
-          semitones: initialSemitones,
-          currentKey: initialCurrentKey,
-          originalKey: initialOriginalKey,
-          isValid: isValidOriginalKey, // Add a flag for validity
-          originalKeyNum: originalKeyNum // Store the numeric value if valid
-      });
-    }
+						songTransposeStates.set(idx, {
+							semitones: initialSemitones,
+							currentKey: initialCurrentKey,
+							originalKey: initialOriginalKey,
+							isValid: isValidOriginalKey, // Add a flag for validity
+							originalKeyNum: originalKeyNum, // Store the numeric value if valid
+						});
+					}
 
-    let songIntervals = [];
-    let lastNoteOfPreviousSection = null;
+					let songIntervals = [];
+					let lastNoteOfPreviousSection = null;
 
-    song.sections.forEach((section, sectionIdx) => {
-      const sectionChords = Array.isArray(section.chords) ? section.chords : [];
-      const sectionBaseNotes = sectionChords.map(parseChordRoot);
+					song.sections.forEach((section, sectionIdx) => {
+						const sectionChords = Array.isArray(section.chords) ? section.chords : [];
+						const sectionBaseNotes = sectionChords.map(parseChordRoot);
 
-      const sectionIntervals = getIntervals(sectionBaseNotes, sectionIdx === 0 ? null : lastNoteOfPreviousSection);
-      songIntervals.push(...sectionIntervals);
+						const sectionIntervals = getIntervals(
+							sectionBaseNotes,
+							sectionIdx === 0 ? null : lastNoteOfPreviousSection
+						);
+						songIntervals.push(...sectionIntervals);
 
-      for (let i = sectionBaseNotes.length - 1; i >= 0; i--) {
-        if (sectionBaseNotes[i] !== '-' && sectionBaseNotes[i] !== null) {
-          lastNoteOfPreviousSection = sectionBaseNotes[i];
-          break;
-        }
-      }
-    });
+						for (let i = sectionBaseNotes.length - 1; i >= 0; i--) {
+							if (sectionBaseNotes[i] !== '-' && sectionBaseNotes[i] !== null) {
+								lastNoteOfPreviousSection = sectionBaseNotes[i];
+								break;
+							}
+						}
+					});
 
-    const freq = intervalFrequency(songIntervals);
-    // Calculate total valid intervals for this specific song
-    const totalSongIntervals = freq.reduce((sum, count) => sum + count, 0);
+					const freq = intervalFrequency(songIntervals);
+					// Calculate total valid intervals for this specific song
+					const totalSongIntervals = freq.reduce((sum, count) => sum + count, 0);
 
-    const songDiv = document.createElement('div');
-    songDiv.className = 'song';
-    songDiv.tabIndex = 0;
+					const songDiv = document.createElement('div');
+					songDiv.className = 'song';
+					songDiv.tabIndex = 0;
 
-    let intervalTableHtml = `<tr><th>Int</th>`;
-    // Add interval headers
-    for (let i = 0; i <= 6; i++) {
-      intervalTableHtml += `<th>${i}</th>`;
-    }
-    intervalTableHtml += `</tr><tr><th>Ct</th>`;
+					let intervalTableHtml = `<tr><th>Int</th>`;
+					// Add interval headers
+					for (let i = 0; i <= 6; i++) {
+						intervalTableHtml += `<th>${i}</th>`;
+					}
+					intervalTableHtml += `</tr><tr><th>Ct</th>`;
 
-    // Add frequency counts with color coding
-    for (let i = 0; i < freq.length; i++) { // Ensure loop runs for all 7 intervals
-      const percentage = totalSongIntervals > 0 ? (freq[i] / totalSongIntervals * 100) : 0;
-      const color = getIntervalColor(percentage);
-      intervalTableHtml += `<td style="background-color: ${color}">${freq[i]}</td>`;
-    }
-    intervalTableHtml += `</tr>`;
+					// Add frequency counts with color coding
+					for (let i = 0; i < freq.length; i++) {
+						// Ensure loop runs for all 7 intervals
+						const percentage = totalSongIntervals > 0 ? (freq[i] / totalSongIntervals) * 100 : 0;
+						const color = getIntervalColor(percentage);
+						intervalTableHtml += `<td style="background-color: ${color}">${freq[i]}</td>`;
+					}
+					intervalTableHtml += `</tr>`;
 
-    songDiv.innerHTML = `
+					songDiv.innerHTML = `
       <div class="song-main">
         <div class="song-info">
           <span class="song-title">${song.title}</span>
@@ -828,7 +897,9 @@ function renderSongs() {
       <div class="edit-form" id="edit-form-${idx}">
         <h3>Edit Song</h3>
         <input type="text" class="edit-title" value="${song.title}" placeholder="Song Title" required>
-        <input type="text" class="edit-standard-key" value="${song.standardKey || ''}" placeholder="Standard Key (e.g., C, G, Bb)">
+        <input type="text" class="edit-standard-key" value="${
+					song.standardKey || ''
+				}" placeholder="Standard Key (e.g., C, G, Bb)">
         <div class="edit-sections-container"></div>
         <div class="edit-actions">
           <button type="button" class="btn btn-discreet add-edit-section-btn">Add Section</button>
@@ -838,134 +909,175 @@ function renderSongs() {
       </div>
     `;
 
-    songDiv.querySelector('.song-main').onclick = function(e) {
-      if (e.target.closest('.edit-btn') || e.target.closest('.delete-btn')) return;
-      const details = songDiv.querySelector('.song-details');
-      const isExpanded = songDiv.classList.toggle('expanded');
-      if (isExpanded) {
-        // Retrieve current transpose state for this song
-        const { semitones, currentKey } = songTransposeStates.get(idx);
-        details.innerHTML = renderSongDetails(song, idx, semitones, currentKey);
-        addIntervalHoverListeners(details);
-        setupTransposeControls(song, idx); // Setup transpose event listeners
-      } else {
-        // When collapsing, clear details to ensure fresh render on re-expansion
-        details.innerHTML = '';
-      }
-    };
+					songDiv.querySelector('.song-main').onclick = function (e) {
+						if (e.target.closest('.edit-btn') || e.target.closest('.delete-btn')) return;
+						const details = songDiv.querySelector('.song-details');
+						const isExpanded = songDiv.classList.toggle('expanded');
+						if (isExpanded) {
+							// Retrieve current transpose state for this song
+							const { semitones, currentKey } = songTransposeStates.get(idx);
+							details.innerHTML = renderSongDetails(song, idx, semitones, currentKey);
+							addIntervalHoverListeners(details);
+							setupTransposeControls(song, idx); // Setup transpose event listeners
+						} else {
+							// When collapsing, clear details to ensure fresh render on re-expansion
+							details.innerHTML = '';
+						}
+					};
 
-    songDiv.onkeydown = function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        songDiv.querySelector('.song-main').click();
-      }
-    };
+					songDiv.onkeydown = function (e) {
+						if (e.key === 'Enter') {
+							e.preventDefault();
+							songDiv.querySelector('.song-main').click();
+						}
+					};
 
-    const editForm = songDiv.querySelector('.edit-form');
-    const editSectionsContainer = editForm.querySelector('.edit-sections-container');
-    song.sections.forEach(section => {
-      editSectionsContainer.appendChild(
-        createEditSectionField(section.label, Array.isArray(section.chords) ? section.chords.join(' ') : '')
-      );
-    });
-    editForm.querySelector('.add-edit-section-btn').onclick = function() {
-      editSectionsContainer.appendChild(createEditSectionField());
-    };
-    editForm.querySelector('.save-edit-btn').onclick = function() {
-      const title = editForm.querySelector('.edit-title').value.trim();
-      const standardKey = editForm.querySelector('.edit-standard-key').value.trim();
-      const sectionDivs = Array.from(editForm.querySelectorAll('.edit-section-field'));
-      const sections = sectionDivs.map(div => ({
-        label: div.querySelector('.edit-section-label').value.trim(),
-        chords: div.querySelector('.edit-section-chords').value.trim().split(/\s+/).filter(x => x)
-      })).filter(sec => sec.label && sec.chords.length > 0);
+					const editForm = songDiv.querySelector('.edit-form');
+					const editSectionsContainer = editForm.querySelector('.edit-sections-container');
+					song.sections.forEach((section) => {
+						editSectionsContainer.appendChild(
+							createEditSectionField(section.label, Array.isArray(section.chords) ? section.chords.join(' ') : '')
+						);
+					});
+					editForm.querySelector('.add-edit-section-btn').onclick = function () {
+						editSectionsContainer.appendChild(createEditSectionField());
+					};
+					editForm.querySelector('.save-edit-btn').onclick = function () {
+						const title = editForm.querySelector('.edit-title').value.trim();
+						const standardKey = editForm.querySelector('.edit-standard-key').value.trim();
+						const sectionDivs = Array.from(editForm.querySelectorAll('.edit-section-field'));
+						const sections = sectionDivs
+							.map((div) => ({
+								label: div.querySelector('.edit-section-label').value.trim(),
+								chords: div
+									.querySelector('.edit-section-chords')
+									.value.trim()
+									.split(/\s+/)
+									.filter((x) => x),
+							}))
+							.filter((sec) => sec.label && sec.chords.length > 0);
 
-      if (!title || sections.length === 0) {
-        showMessageModal('Please provide a song title and at least one valid section.');
-        return;
-      }
-      const songs = loadSongs();
-      songs[idx] = { title, sections, standardKey }; // Save standardKey
-      saveSongs(songs);
-      
-      // Update transpose state for this song after editing key
-      const newOriginalKeyInput = standardKey ? standardKey.trim() : '';
-      const lookupKey = formatKeyForLookup(newOriginalKeyInput);
-      const newOriginalKeyNum = NOTE_TO_NUM[lookupKey];
-      
-      let initialOriginalKey = newOriginalKeyInput;
-      let initialCurrentKey = newOriginalKeyInput;
-      let isValidOriginalKey = true;
+						if (!title || sections.length === 0) {
+							showMessageModal('Please provide a song title and at least one valid section.');
+							return;
+						}
+						const songs = loadSongs();
+						songs[idx] = { title, sections, standardKey }; // Save standardKey
+						saveSongs(songs);
 
-      if (newOriginalKeyInput && newOriginalKeyNum === undefined) {
-          showMessageModal(`Warning: Standard key "${newOriginalKeyInput}" for song "${title}" is not recognized. Transpose functions will be limited.`);
-          initialOriginalKey = newOriginalKeyInput;
-          initialCurrentKey = 'Key Error';
-          isValidOriginalKey = false;
-      } else if (!newOriginalKeyInput) {
-          initialOriginalKey = 'N/A';
-          initialCurrentKey = 'N/A';
-          isValidOriginalKey = false;
-      } else {
-          // If valid, ensure currentKey is the properly formatted key string
-          initialCurrentKey = calculateNewKeyName(newOriginalKeyNum, 0); // Use calculateNewKeyName to get preferred display
-      }
+						// Update transpose state for this song after editing key
+						const newOriginalKeyInput = standardKey ? standardKey.trim() : '';
+						const lookupKey = formatKeyForLookup(newOriginalKeyInput);
+						const newOriginalKeyNum = NOTE_TO_NUM[lookupKey];
 
-      songTransposeStates.set(idx, {
-          semitones: 0,
-          currentKey: initialCurrentKey,
-          originalKey: initialOriginalKey,
-          isValid: isValidOriginalKey,
-          originalKeyNum: newOriginalKeyNum
-      });
+						let initialOriginalKey = newOriginalKeyInput;
+						let initialCurrentKey = newOriginalKeyInput;
+						let isValidOriginalKey = true;
 
-      renderSongs(); // Re-render all songs to reflect changes
-    };
-    editForm.querySelector('.cancel-edit-btn').onclick = function() {
-      editForm.classList.remove('active');
-    };
-    songDiv.querySelector('.delete-btn').onclick = function(e) {
-      e.stopPropagation();
-      showConfirmationModal(`Are you sure you want to delete "${song.title}"?`, () => {
-        const songs = loadSongs();
-        songs.splice(idx, 1);
-        saveSongs(songs);
-        songTransposeStates.delete(idx); // Remove transpose state for deleted song
-        renderSongs();
-      });
-    };
+						if (newOriginalKeyInput && newOriginalKeyNum === undefined) {
+							showMessageModal(
+								`Warning: Standard key "${newOriginalKeyInput}" for song "${title}" is not recognized. Transpose functions will be limited.`
+							);
+							initialOriginalKey = newOriginalKeyInput;
+							initialCurrentKey = 'Key Error';
+							isValidOriginalKey = false;
+						} else if (!newOriginalKeyInput) {
+							initialOriginalKey = 'N/A';
+							initialCurrentKey = 'N/A';
+							isValidOriginalKey = false;
+						} else {
+							// If valid, ensure currentKey is the properly formatted key string
+							initialCurrentKey = calculateNewKeyName(newOriginalKeyNum, 0); // Use calculateNewKeyName to get preferred display
+						}
 
-    songList.appendChild(songDiv);
-  });
-}
+						songTransposeStates.set(idx, {
+							semitones: 0,
+							currentKey: initialCurrentKey,
+							originalKey: initialOriginalKey,
+							isValid: isValidOriginalKey,
+							originalKeyNum: newOriginalKeyNum,
+						});
 
-// Helper function to get color based on percentage
-function getIntervalColor(percentage) {
-  if (percentage === 0) {
-    return 'var(--white-bg)'; // White for 0 counts
-  } else if (percentage > 0 && percentage < 10) {
-    return '#a8e6cf'; // Light Green
-  } else if (percentage >= 10 && percentage < 15) {
-    return '#a7d9f7'; // Light Blue
-  } else if (percentage >= 15 && percentage < 33) {
-    return '#fdfa7f'; // Light Yellow
-  } else {
-    return '#ff9999'; // Light Red (15% and above)
-  }
-}
+						renderSongs(); // Re-render all songs to reflect changes
+					};
+					editForm.querySelector('.cancel-edit-btn').onclick = function () {
+						editForm.classList.remove('active');
+					};
+					songDiv.querySelector('.delete-btn').onclick = function (e) {
+						e.stopPropagation();
+						showConfirmationModal(`Are you sure you want to delete "${song.title}"?`, () => {
+							const songs = loadSongs();
+							songs.splice(idx, 1);
+							saveSongs(songs);
+							songTransposeStates.delete(idx); // Remove transpose state for deleted song
+							renderSongs();
+						});
+					};
+					songDiv.querySelector('.edit-btn').onclick = function (e) {
+						e.stopPropagation();
+						onEditBtnClick(song);
+					};
+					songList.appendChild(songDiv);
+				});
+			}
 
-/**
- * Renders the detailed view of a song, applying transposition if specified.
- * @param {object} song - The song object.
- * @param {number} songIdx - The index of the song in the songs array.
- * @param {number} currentTransposeSemitones - The number of semitones to transpose by.
- * @param {string} currentKeyDisplay - The string representation of the current key.
- */
-function renderSongDetails(song, songIdx, currentTransposeSemitones, currentKeyDisplay) {
-  const currentTransposeState = songTransposeStates.get(songIdx);
-  const { originalKey, isValid } = currentTransposeState;
+			/**
+			 * Handler for clicking the .edit-btn of a song.
+			 * Shows a confirmation modal, then populates the Add New Song form with the song's data if confirmed.
+			 * @param {object} song - The song object to load into the form.
+			 */
+			function onEditBtnClick(song) {
+				showConfirmationModal('This will erase all fields in Add new song form, OK?', () => {
+					// Populate Add New Song form with the song's data
+					const titleInput = document.getElementById('song-title');
+					const standardKeyInput = document.getElementById('song-standard-key');
+					const sectionsContainer = document.getElementById('sections-container');
 
-  let html = `
+					// Set title and key
+					titleInput.value = song.title || '';
+					standardKeyInput.value = song.standardKey || '';
+
+					// Clear existing sections
+					sectionsContainer.innerHTML = '';
+
+					// Add each section from the song
+					if (Array.isArray(song.sections)) {
+						song.sections.forEach((section) => {
+							const label = section.label || '';
+							const chords = Array.isArray(section.chords) ? section.chords.join(' ') : '';
+							sectionsContainer.appendChild(createSectionField(label, chords));
+						});
+					}
+				});
+			}
+
+			// Helper function to get color based on percentage
+			function getIntervalColor(percentage) {
+				if (percentage === 0) {
+					return 'var(--white-bg)'; // White for 0 counts
+				} else if (percentage > 0 && percentage < 10) {
+					return '#a8e6cf'; // Light Green
+				} else if (percentage >= 10 && percentage < 15) {
+					return '#a7d9f7'; // Light Blue
+				} else if (percentage >= 15 && percentage < 33) {
+					return '#fdfa7f'; // Light Yellow
+				} else {
+					return '#ff9999'; // Light Red (15% and above)
+				}
+			}
+
+			/**
+			 * Renders the detailed view of a song, applying transposition if specified.
+			 * @param {object} song - The song object.
+			 * @param {number} songIdx - The index of the song in the songs array.
+			 * @param {number} currentTransposeSemitones - The number of semitones to transpose by.
+			 * @param {string} currentKeyDisplay - The string representation of the current key.
+			 */
+			function renderSongDetails(song, songIdx, currentTransposeSemitones, currentKeyDisplay) {
+				const currentTransposeState = songTransposeStates.get(songIdx);
+				const { originalKey, isValid } = currentTransposeState;
+
+				let html = `
     <div class="transpose-controls">
         <span class="transpose-label">Transpose:</span>
         <button class="btn btn-discreet" data-transpose-semitones="-1" data-transpose-preference="flat" data-song-idx="${songIdx}">-1</button>
@@ -977,36 +1089,36 @@ function renderSongDetails(song, songIdx, currentTransposeSemitones, currentKeyD
     </div>
     <table class="song-details-table">
   `;
-  let lastNoteOfPreviousSection = null; // To carry over the last chord's note
+				let lastNoteOfPreviousSection = null; // To carry over the last chord's note
 
-  song.sections.forEach((section, sectionIdx) => {
-    let chordCells = '';
-    let intervalCells = '';
+				song.sections.forEach((section, sectionIdx) => {
+					let chordCells = '';
+					let intervalCells = '';
 
-    // Transpose chords for display only if the original key is valid
-    const chordsToDisplay = isValid
-        ? section.chords.map(chord => transposeChord(chord, currentTransposeSemitones))
-        : section.chords; // If invalid, just display original chords
+					// Transpose chords for display only if the original key is valid
+					const chordsToDisplay = isValid
+						? section.chords.map((chord) => transposeChord(chord, currentTransposeSemitones))
+						: section.chords; // If invalid, just display original chords
 
-    const sectionBaseNotes = chordsToDisplay.map(parseChordRoot);
+					const sectionBaseNotes = chordsToDisplay.map(parseChordRoot);
 
-    // Determine the initialLastValidNote for this section's getIntervals call
-    const initialNoteForSection = sectionIdx === 0 ? null : lastNoteOfPreviousSection;
-    const intervals = getIntervals(sectionBaseNotes, initialNoteForSection);
+					// Determine the initialLastValidNote for this section's getIntervals call
+					const initialNoteForSection = sectionIdx === 0 ? null : lastNoteOfPreviousSection;
+					const intervals = getIntervals(sectionBaseNotes, initialNoteForSection);
 
-    chordsToDisplay.forEach((chord, i) => {
-      chordCells += `<td>${chord}</td>`;
+					chordsToDisplay.forEach((chord, i) => {
+						chordCells += `<td>${chord}</td>`;
 
-      const interval = intervals[i];
-      if (interval.val === '-') {
-        intervalCells += '<td>-</td>';
-      } else {
-        // Add data attributes for interval value and sign for easy retrieval
-        intervalCells += `<td class="interval-value" data-interval-sign="${interval.sign}" data-interval-val="${interval.val}">${interval.sign}${interval.val}</td>`;
-      }
-    });
+						const interval = intervals[i];
+						if (interval.val === '-') {
+							intervalCells += '<td>-</td>';
+						} else {
+							// Add data attributes for interval value and sign for easy retrieval
+							intervalCells += `<td class="interval-value" data-interval-sign="${interval.sign}" data-interval-val="${interval.val}">${interval.sign}${interval.val}</td>`;
+						}
+					});
 
-    html += `
+					html += `
       <tr>
         <th rowspan="2" class="section-header">${section.label}</th>
         ${chordCells}
@@ -1014,396 +1126,460 @@ function renderSongDetails(song, songIdx, currentTransposeSemitones, currentKeyD
       <tr>${intervalCells}</tr>
     `;
 
-    // After processing a section, find its last valid chord to pass to the next section
-    let currentSectionLastValidNote = null;
-    for (let i = sectionBaseNotes.length - 1; i >= 0; i--) {
-      if (sectionBaseNotes[i] !== '-' && sectionBaseNotes[i] !== null) {
-        currentSectionLastValidNote = sectionBaseNotes[i];
-        break;
-        }
-    }
-    lastNoteOfPreviousSection = currentSectionLastValidNote;
-  });
-  html += '</table>';
-  return html;
-}
+					// After processing a section, find its last valid chord to pass to the next section
+					let currentSectionLastValidNote = null;
+					for (let i = sectionBaseNotes.length - 1; i >= 0; i--) {
+						if (sectionBaseNotes[i] !== '-' && sectionBaseNotes[i] !== null) {
+							currentSectionLastValidNote = sectionBaseNotes[i];
+							break;
+						}
+					}
+					lastNoteOfPreviousSection = currentSectionLastValidNote;
+				});
+				html += '</table>';
+				return html;
+			}
 
-/**
- * Sets up event listeners for the transpose controls of a specific song.
- * @param {object} song - The song object.
- * @param {number} songIdx - The index of the song.
- */
- function setupTransposeControls(song, songIdx) {
-    const songDiv = document.querySelector(`.song:nth-child(${songIdx + 1})`);
-    if (!songDiv) return; // Should not happen if called correctly
+			/**
+			 * Sets up event listeners for the transpose controls of a specific song.
+			 * @param {object} song - The song object.
+			 * @param {number} songIdx - The index of the song.
+			 */
+			function setupTransposeControls(song, songIdx) {
+				const songDiv = document.querySelector(`.song:nth-child(${songIdx + 1})`);
+				if (!songDiv) return; // Should not happen if called correctly
 
-    const transposeControlsDiv = songDiv.querySelector('.transpose-controls');
-    const currentKeyDisplaySpan = songDiv.querySelector(`#current-transposed-key-${songIdx}`);
-    const resetKeyDisplaySpan = songDiv.querySelector(`#reset-key-display-${songIdx}`);
+				const transposeControlsDiv = songDiv.querySelector('.transpose-controls');
+				const currentKeyDisplaySpan = songDiv.querySelector(`#current-transposed-key-${songIdx}`);
+				const resetKeyDisplaySpan = songDiv.querySelector(`#reset-key-display-${songIdx}`);
 
-    const currentTransposeState = songTransposeStates.get(songIdx);
-    // Destructure needed properties from currentTransposeState
-    const { semitones: currentSemitones, originalKey: songOriginalKey, isValid: isOriginalKeyValid, originalKeyNum: storedOriginalKeyNum } = currentTransposeState;
+				const currentTransposeState = songTransposeStates.get(songIdx);
+				// Destructure needed properties from currentTransposeState
+				const {
+					semitones: currentSemitones,
+					originalKey: songOriginalKey,
+					isValid: isOriginalKeyValid,
+					originalKeyNum: storedOriginalKeyNum,
+				} = currentTransposeState;
 
-    // Disable transpose buttons if the original key is not valid
-    if (!isOriginalKeyValid) {
-        transposeControlsDiv.querySelectorAll('button').forEach(button => {
-            if (!button.classList.contains('reset-transpose-btn')) { // Keep reset button enabled
-                button.disabled = true;
-                button.style.opacity = '0.5';
-                button.style.cursor = 'not-allowed';
-            }
-        });
-        // Ensure the display reflects the invalid state if it wasn't set correctly initially
-        if (currentKeyDisplaySpan) {
-             currentKeyDisplaySpan.textContent = 'Key Error';
-        }
-        if (resetKeyDisplaySpan) {
-            resetKeyDisplaySpan.textContent = songOriginalKey; // Shows original invalid input
-        }
-    }
+				// Disable transpose buttons if the original key is not valid
+				if (!isOriginalKeyValid) {
+					transposeControlsDiv.querySelectorAll('button').forEach((button) => {
+						if (!button.classList.contains('reset-transpose-btn')) {
+							// Keep reset button enabled
+							button.disabled = true;
+							button.style.opacity = '0.5';
+							button.style.cursor = 'not-allowed';
+						}
+					});
+					// Ensure the display reflects the invalid state if it wasn't set correctly initially
+					if (currentKeyDisplaySpan) {
+						currentKeyDisplaySpan.textContent = 'Key Error';
+					}
+					if (resetKeyDisplaySpan) {
+						resetKeyDisplaySpan.textContent = songOriginalKey; // Shows original invalid input
+					}
+				}
 
+				const updateTransposeDisplay = (semitones, currentKey) => {
+					const details = songDiv.querySelector('.song-details');
+					details.innerHTML = renderSongDetails(song, songIdx, semitones, currentKey);
+					addIntervalHoverListeners(details); // Re-attach hover listeners
+					// Re-setup controls because innerHTML clears them
+					setupTransposeControls(song, songIdx);
+				};
 
-    const updateTransposeDisplay = (semitones, currentKey) => {
-        const details = songDiv.querySelector('.song-details');
-        details.innerHTML = renderSongDetails(song, songIdx, semitones, currentKey);
-        addIntervalHoverListeners(details); // Re-attach hover listeners
-        // Re-setup controls because innerHTML clears them
-        setupTransposeControls(song, songIdx);
-    };
+				transposeControlsDiv.querySelectorAll('button').forEach((button) => {
+					button.onclick = () => {
+						// If the original key is not valid and it's not the reset button, show message and exit
+						if (!isOriginalKeyValid && !button.classList.contains('reset-transpose-btn')) {
+							showMessageModal('Please provide a valid standard key for this song to use transpose functions.');
+							return;
+						}
 
-    transposeControlsDiv.querySelectorAll('button').forEach(button => {
-        button.onclick = () => {
-            // If the original key is not valid and it's not the reset button, show message and exit
-            if (!isOriginalKeyValid && !button.classList.contains('reset-transpose-btn')) {
-                showMessageModal('Please provide a valid standard key for this song to use transpose functions.');
-                return;
-            }
+						// Re-fetch current transpose state as it might have changed
+						const updatedTransposeState = songTransposeStates.get(songIdx);
+						let {
+							semitones: currentSemitones,
+							originalKey: songOriginalKey,
+							isValid: isOriginalKeyValidUpdate,
+							originalKeyNum: storedOriginalKeyNumUpdate,
+						} = updatedTransposeState;
 
-            // Re-fetch current transpose state as it might have changed
-            const updatedTransposeState = songTransposeStates.get(songIdx);
-            let { semitones: currentSemitones, originalKey: songOriginalKey, isValid: isOriginalKeyValidUpdate, originalKeyNum: storedOriginalKeyNumUpdate } = updatedTransposeState;
+						// Handle Reset button
+						if (button.classList.contains('reset-transpose-btn')) {
+							let initialSemitones = 0;
+							let initialKey;
+							// If the originalKey was invalid (e.g., 'Xyz' or empty), reset currentKey to 'Key Error' or 'N/A'
+							if (!isOriginalKeyValidUpdate) {
+								initialKey = songOriginalKey; // Keep the original invalid input for display
+							} else {
+								// If valid, use calculateNewKeyName to get the preferred display format
+								initialKey = calculateNewKeyName(storedOriginalKeyNumUpdate, 0);
+							}
+							songTransposeStates.set(songIdx, {
+								semitones: initialSemitones,
+								currentKey: initialKey,
+								originalKey: songOriginalKey,
+								isValid: isOriginalKeyValidUpdate,
+								originalKeyNum: storedOriginalKeyNumUpdate,
+							});
+							updateTransposeDisplay(initialSemitones, initialKey);
+							return;
+						}
 
+						// Handle specific key buttons (Bb, Eb)
+						const targetKeyInstrument = button.getAttribute('data-target-key');
+						if (targetKeyInstrument) {
+							let semitonesToTarget;
+							let newCurrentKeyDisplay;
 
-            // Handle Reset button
-            if (button.classList.contains('reset-transpose-btn')) {
-                let initialSemitones = 0;
-                let initialKey;
-                // If the originalKey was invalid (e.g., 'Xyz' or empty), reset currentKey to 'Key Error' or 'N/A'
-                if (!isOriginalKeyValidUpdate) {
-                  initialKey = songOriginalKey; // Keep the original invalid input for display
-                } else {
-                  // If valid, use calculateNewKeyName to get the preferred display format
-                  initialKey = calculateNewKeyName(storedOriginalKeyNumUpdate, 0);
-                }
-                songTransposeStates.set(songIdx, { semitones: initialSemitones, currentKey: initialKey, originalKey: songOriginalKey, isValid: isOriginalKeyValidUpdate, originalKeyNum: storedOriginalKeyNumUpdate });
-                updateTransposeDisplay(initialSemitones, initialKey);
-                return;
-            }
+							if (targetKeyInstrument === 'Bb') {
+								// For Bb instruments, a written C sounds as Bb, so transpose down 2 semitones from piano's key
+								semitonesToTarget = -2;
+								// The displayed key should be the original key (piano) transposed by -2 semitones
+								newCurrentKeyDisplay = calculateNewKeyName(storedOriginalKeyNumUpdate, semitonesToTarget);
+							} else if (targetKeyInstrument === 'Eb') {
+								// For Eb instruments, a written C sounds as Eb, so transpose up 3 semitones from piano's key
+								semitonesToTarget = 3;
+								// The displayed key should be the original key (piano) transposed by +3 semitones
+								newCurrentKeyDisplay = calculateNewKeyName(storedOriginalKeyNumUpdate, semitonesToTarget);
+							} else {
+								// Fallback for unrecognized target keys, though ideally prevented by UI
+								showMessageModal(`Target key instrument "${targetKeyInstrument}" not recognized.`);
+								return;
+							}
 
-            // Handle specific key buttons (Bb, Eb)
-            const targetKeyInstrument = button.getAttribute('data-target-key');
-            if (targetKeyInstrument) {
-                let semitonesToTarget;
-                let newCurrentKeyDisplay;
+							if (storedOriginalKeyNumUpdate === undefined) {
+								showMessageModal(`Original key "${songOriginalKey}" not recognized. Cannot transpose for instrument.`);
+								return;
+							}
 
-                if (targetKeyInstrument === 'Bb') {
-                    // For Bb instruments, a written C sounds as Bb, so transpose down 2 semitones from piano's key
-                    semitonesToTarget = -2;
-                    // The displayed key should be the original key (piano) transposed by -2 semitones
-                    newCurrentKeyDisplay = calculateNewKeyName(storedOriginalKeyNumUpdate, semitonesToTarget);
+							songTransposeStates.set(songIdx, {
+								semitones: semitonesToTarget,
+								currentKey: newCurrentKeyDisplay,
+								originalKey: songOriginalKey,
+								isValid: isOriginalKeyValidUpdate,
+								originalKeyNum: storedOriginalKeyNumUpdate,
+							});
+							updateTransposeDisplay(semitonesToTarget, newCurrentKeyDisplay);
+							return;
+						}
 
-                } else if (targetKeyInstrument === 'Eb') {
-                    // For Eb instruments, a written C sounds as Eb, so transpose up 3 semitones from piano's key
-                    semitonesToTarget = 3;
-                    // The displayed key should be the original key (piano) transposed by +3 semitones
-                    newCurrentKeyDisplay = calculateNewKeyName(storedOriginalKeyNumUpdate, semitonesToTarget);
-                } else {
-                    // Fallback for unrecognized target keys, though ideally prevented by UI
-                    showMessageModal(`Target key instrument "${targetKeyInstrument}" not recognized.`);
-                    return;
-                }
+						// Handle +/- buttons
+						const transposeChange = parseInt(button.getAttribute('data-transpose-semitones'));
+						// notationPreference is used by transposeChord, not directly by key calculation
+						// const notationPreference = button.getAttribute('data-transpose-preference');
 
-                if (storedOriginalKeyNumUpdate === undefined) {
-                    showMessageModal(`Original key "${songOriginalKey}" not recognized. Cannot transpose for instrument.`);
-                    return;
-                }
-                
-                songTransposeStates.set(songIdx, { semitones: semitonesToTarget, currentKey: newCurrentKeyDisplay, originalKey: songOriginalKey, isValid: isOriginalKeyValidUpdate, originalKeyNum: storedOriginalKeyNumUpdate });
-                updateTransposeDisplay(semitonesToTarget, newCurrentKeyDisplay);
-                return;
-            }
+						if (!isNaN(transposeChange)) {
+							let newSemitones = currentSemitones + transposeChange;
 
-            // Handle +/- buttons
-            const transposeChange = parseInt(button.getAttribute('data-transpose-semitones'));
-            // notationPreference is used by transposeChord, not directly by key calculation
-            // const notationPreference = button.getAttribute('data-transpose-preference'); 
+							if (storedOriginalKeyNumUpdate === undefined) {
+								// This case should ideally be caught by the disabled buttons, but as a safeguard
+								showMessageModal(
+									`Original key "${songOriginalKey}" for song "${song.title}" not recognized. Cannot transpose.`
+								);
+								return;
+							}
 
-            if (!isNaN(transposeChange)) {
-                let newSemitones = currentSemitones + transposeChange;
-                
-                if (storedOriginalKeyNumUpdate === undefined) {
-                    // This case should ideally be caught by the disabled buttons, but as a safeguard
-                    showMessageModal(`Original key "${songOriginalKey}" for song "${song.title}" not recognized. Cannot transpose.`);
-                    return;
-                }
-                
-                const newCurrentKey = calculateNewKeyName(storedOriginalKeyNumUpdate, newSemitones);
+							const newCurrentKey = calculateNewKeyName(storedOriginalKeyNumUpdate, newSemitones);
 
-                songTransposeStates.set(songIdx, { semitones: newSemitones, currentKey: newCurrentKey, originalKey: songOriginalKey, isValid: isOriginalKeyValidUpdate, originalKeyNum: storedOriginalKeyNumUpdate });
-                updateTransposeDisplay(newSemitones, newCurrentKey);
-            }
-        };
-    });
-    
-    // Update the "Reset to X" button text if the current song state has a valid original key
-    // This is already done in renderSongDetails, but ensure consistency here for robustness
-    if (resetKeyDisplaySpan) {
-        if (currentTransposeState.isValid) {
-            resetKeyDisplaySpan.textContent = currentTransposeState.originalKey;
-        } else {
-            resetKeyDisplaySpan.textContent = currentTransposeState.originalKey; // Display the invalid input
-        }
-    }
-}
+							songTransposeStates.set(songIdx, {
+								semitones: newSemitones,
+								currentKey: newCurrentKey,
+								originalKey: songOriginalKey,
+								isValid: isOriginalKeyValidUpdate,
+								originalKeyNum: storedOriginalKeyNumUpdate,
+							});
+							updateTransposeDisplay(newSemitones, newCurrentKey);
+						}
+					};
+				});
 
+				// Update the "Reset to X" button text if the current song state has a valid original key
+				// This is already done in renderSongDetails, but ensure consistency here for robustness
+				if (resetKeyDisplaySpan) {
+					if (currentTransposeState.isValid) {
+						resetKeyDisplaySpan.textContent = currentTransposeState.originalKey;
+					} else {
+						resetKeyDisplaySpan.textContent = currentTransposeState.originalKey; // Display the invalid input
+					}
+				}
+			}
 
-function addIntervalHoverListeners(containerElement) {
-  const intervalCells = containerElement.querySelectorAll('.interval-value');
-  intervalCells.forEach(cell => {
-    const intervalVal = parseInt(cell.getAttribute('data-interval-val'));
-    const intervalSign = cell.getAttribute('data-interval-sign');
+			function addIntervalHoverListeners(containerElement) {
+				const intervalCells = containerElement.querySelectorAll('.interval-value');
+				intervalCells.forEach((cell) => {
+					const intervalVal = parseInt(cell.getAttribute('data-interval-val'));
+					const intervalSign = cell.getAttribute('data-interval-sign');
 
-    // Only add listeners for valid numeric intervals
-    if (!isNaN(intervalVal)) {
-      cell.onmousemove = e => {
-        const popup = getOrCreateIntervalPopup();
-        const globalStats = computeGlobalIntervalStats(loadSongs(), normalizeIntervals);
+					// Only add listeners for valid numeric intervals
+					if (!isNaN(intervalVal)) {
+						cell.onmousemove = (e) => {
+							const popup = getOrCreateIntervalPopup();
+							const globalStats = computeGlobalIntervalStats(loadSongs(), normalizeIntervals);
 
-        let displayLabel;
-        let frequencyCount = 0;
-        // let percentage = 0; // Not used from here, calculated below
+							let displayLabel;
+							let frequencyCount = 0;
+							// let percentage = 0; // Not used from here, calculated below
 
-        if (normalizeIntervals) {
-          displayLabel = intervalVal;
-          if (intervalVal >= 0 && intervalVal <= 6) {
-             frequencyCount = globalStats.freq[intervalVal];
-          }
-        } else {
-          // Recreate the logic from computeGlobalIntervalStats to get the correct index
-          if (intervalVal === 0) {
-            displayLabel = '0';
-            frequencyCount = globalStats.freq[0];
-          } else if (intervalVal === 6) { // Tritone
-            displayLabel = (intervalSign === '+' ? '+' : '-') + '6'; // Display sign for tritone
-            frequencyCount = globalStats.freq[12];
-          } else if (intervalSign === '+') {
-            displayLabel = `+${intervalVal}`;
-            frequencyCount = globalStats.freq[intervalVal];
-          } else if (intervalSign === '-') {
-            displayLabel = `-${intervalVal}`;
-            frequencyCount = globalStats.freq[6 + intervalVal];
-          }
-        }
-        const percentage = globalStats.total ? (frequencyCount / globalStats.total * 100).toFixed(1) : 0;
+							if (normalizeIntervals) {
+								displayLabel = intervalVal;
+								if (intervalVal >= 0 && intervalVal <= 6) {
+									frequencyCount = globalStats.freq[intervalVal];
+								}
+							} else {
+								// Recreate the logic from computeGlobalIntervalStats to get the correct index
+								if (intervalVal === 0) {
+									displayLabel = '0';
+									frequencyCount = globalStats.freq[0];
+								} else if (intervalVal === 6) {
+									// Tritone
+									displayLabel = (intervalSign === '+' ? '+' : '-') + '6'; // Display sign for tritone
+									frequencyCount = globalStats.freq[12];
+								} else if (intervalSign === '+') {
+									displayLabel = `+${intervalVal}`;
+									frequencyCount = globalStats.freq[intervalVal];
+								} else if (intervalSign === '-') {
+									displayLabel = `-${intervalVal}`;
+									frequencyCount = globalStats.freq[6 + intervalVal];
+								}
+							}
+							const percentage = globalStats.total ? ((frequencyCount / globalStats.total) * 100).toFixed(1) : 0;
 
-        popup.innerHTML = `<b>Interval ${displayLabel}</b><br>Total Percentage: ${percentage}%`;
-        popup.style.display = 'block';
-        popup.style.left = (e.clientX + 12) + 'px';
-        popup.style.top = (e.clientY + 12) + 'px';
-      };
-      cell.onmouseleave = () => {
-        hideIntervalPopup();
-      };
-    }
-  });
-}
+							popup.innerHTML = `<b>Interval ${displayLabel}</b><br>Total Percentage: ${percentage}%`;
+							popup.style.display = 'block';
+							popup.style.left = e.clientX + 12 + 'px';
+							popup.style.top = e.clientY + 12 + 'px';
+						};
+						cell.onmouseleave = () => {
+							hideIntervalPopup();
+						};
+					}
+				});
+			}
 
-function getOrCreateIntervalPopup() {
-  let popup = document.getElementById('interval-hover-popup');
-  if (!popup) {
-    popup = document.createElement('div');
-    popup.id = 'interval-hover-popup';
-    popup.style.position = 'fixed';
-    popup.style.pointerEvents = 'none';
-    popup.style.background = '#fff';
-    popup.style.border = '1px solid #bbb';
-    popup.style.borderRadius = '6px';
-    popup.style.boxShadow = '0 2px 8px #0002';
-    popup.style.padding = '0.5em 1em';
-    popup.style.fontSize = '1em';
-    popup.style.zIndex = 1000;
-    popup.style.display = 'none';
-    document.body.appendChild(popup);
-  }
-  return popup;
-}
+			function getOrCreateIntervalPopup() {
+				let popup = document.getElementById('interval-hover-popup');
+				if (!popup) {
+					popup = document.createElement('div');
+					popup.id = 'interval-hover-popup';
+					popup.style.position = 'fixed';
+					popup.style.pointerEvents = 'none';
+					popup.style.background = '#fff';
+					popup.style.border = '1px solid #bbb';
+					popup.style.borderRadius = '6px';
+					popup.style.boxShadow = '0 2px 8px #0002';
+					popup.style.padding = '0.5em 1em';
+					popup.style.fontSize = '1em';
+					popup.style.zIndex = 1000;
+					popup.style.display = 'none';
+					document.body.appendChild(popup);
+				}
+				return popup;
+			}
 
-function hideIntervalPopup() {
-  const popup = document.getElementById('interval-hover-popup');
-  if (popup) {
-    popup.style.display = 'none';
-  }
-}
+			function hideIntervalPopup() {
+				const popup = document.getElementById('interval-hover-popup');
+				if (popup) {
+					popup.style.display = 'none';
+				}
+			}
 
-document.querySelector('.add-song-form').onsubmit = function(e) {
-  e.preventDefault();
-  const titleInput = document.getElementById('song-title');
-  const standardKeyInput = document.getElementById('song-standard-key');
-  const title = titleInput.value.trim();
-  const standardKey = standardKeyInput.value.trim(); // Get standard key
+			document.querySelector('.add-song-form').onsubmit = function (e) {
+				e.preventDefault();
+				const titleInput = document.getElementById('song-title');
+				const standardKeyInput = document.getElementById('song-standard-key');
+				const title = titleInput.value.trim();
+				const standardKey = standardKeyInput.value.trim(); // Get standard key
 
-  const sectionDivs = Array.from(document.querySelectorAll('#sections-container .section-field'));
-  const sections = sectionDivs.map(div => ({
-    label: div.querySelector('.section-label').value.trim(),
-    chords: div.querySelector('.section-chords').value.trim().split(/\s+/).filter(x => x)
-  })).filter(sec => sec.label && sec.chords.length > 0);
+				const sectionDivs = Array.from(document.querySelectorAll('#sections-container .section-field'));
+				const sections = sectionDivs
+					.map((div) => ({
+						label: div.querySelector('.section-label').value.trim(),
+						chords: div
+							.querySelector('.section-chords')
+							.value.trim()
+							.split(/\s+/)
+							.filter((x) => x),
+					}))
+					.filter((sec) => sec.label && sec.chords.length > 0);
 
-  if (!title || sections.length === 0) {
-    // Using custom modal instead of alert/confirm
-    showMessageModal('Please provide a song title and at least one valid section.');
-    return;
-  }
+				if (!title || sections.length === 0) {
+					// Using custom modal instead of alert/confirm
+					showMessageModal('Please provide a song title and at least one valid section.');
+					return;
+				}
 
-  const songs = loadSongs();
-  songs.push({ title, sections, standardKey }); // Save standardKey with song
-  saveSongs(songs);
-  renderSongs();
+				const songs = loadSongs();
+				songs.push({ title, sections, standardKey }); // Save standardKey with song
+				saveSongs(songs);
+				renderSongs();
 
-  this.reset();
-  titleInput.focus();
-  setupSectionFields();
-};
+				this.reset();
+				titleInput.focus();
+				setupSectionFields();
+			};
 
-window.onload = function() {
-  renderSongs();
-  setupSectionFields();
-  // Attach event listeners for import/export buttons after DOM is loaded
-  document.getElementById('export-songs-btn').onclick = exportSongs;
-  document.getElementById('import-songs-btn').onclick = importSongs;
-  document.getElementById('load-default-songs-btn').onclick = loadDefaultSongs;
-};
+			window.onload = function () {
+				renderSongs();
+				setupSectionFields();
+				// Attach event listeners for import/export buttons after DOM is loaded
+				document.getElementById('export-songs-btn').onclick = exportSongs;
+				document.getElementById('import-songs-btn').onclick = importSongs;
+				document.getElementById('load-default-songs-btn').onclick = loadDefaultSongs;
+			};
 
-// --- GLOBAL INTERVAL STATS ---
-let normalizeIntervals = true;
+			// --- GLOBAL INTERVAL STATS ---
+			let normalizeIntervals = true;
 
-function computeGlobalIntervalStats(songs, normalize = true) {
-  // Aggregate all intervals from all songs, considering section transitions
-  let allIntervals = [];
+			function computeGlobalIntervalStats(songs, normalize = true) {
+				// Aggregate all intervals from all songs, considering section transitions
+				let allIntervals = [];
 
-  songs.forEach(song => {
-    let lastNoteOfPreviousSection = null; // Reset for each song
+				songs.forEach((song) => {
+					let lastNoteOfPreviousSection = null; // Reset for each song
 
-    song.sections.forEach((section, sectionIdx) => {
-      const sectionChords = Array.isArray(section.chords) ? section.chords : [];
-      const sectionBaseNotes = sectionChords.map(parseChordRoot);
+					song.sections.forEach((section, sectionIdx) => {
+						const sectionChords = Array.isArray(section.chords) ? section.chords : [];
+						const sectionBaseNotes = sectionChords.map(parseChordRoot);
 
-      // Pass the last note of the previous section for the first chord of this section
-      const sectionIntervals = getIntervals(sectionBaseNotes, sectionIdx === 0 ? null : lastNoteOfPreviousSection);
-      
-      // Add all intervals from this section to the global list, filtering out the initial '-'
-      // if it was the very first chord of the song. Otherwise, the '-' from internal
-      // same-chord continuations will still be filtered later by intervalFrequency.
-      sectionIntervals.forEach((interval, i) => {
-        // Only include the first chord interval if it's not the absolute first chord of the song
-        if (!(sectionIdx === 0 && i === 0 && interval.val === '-')) {
-          allIntervals.push(interval);
-        }
-      });
+						// Pass the last note of the previous section for the first chord of this section
+						const sectionIntervals = getIntervals(
+							sectionBaseNotes,
+							sectionIdx === 0 ? null : lastNoteOfPreviousSection
+						);
 
-      // Update lastNoteOfPreviousSection for the next iteration
-      let currentSectionLastValidNote = null;
-      for (let i = sectionBaseNotes.length - 1; i >= 0; i--) {
-        if (sectionBaseNotes[i] !== '-' && sectionBaseNotes[i] !== null) {
-          currentSectionLastValidNote = sectionBaseNotes[i];
-          break;
-        }
-      }
-      lastNoteOfPreviousSection = currentSectionLastValidNote;
-    });
-  });
+						// Add all intervals from this section to the global list, filtering out the initial '-'
+						// if it was the very first chord of the song. Otherwise, the '-' from internal
+						// same-chord continuations will still be filtered later by intervalFrequency.
+						sectionIntervals.forEach((interval, i) => {
+							// Only include the first chord interval if it's not the absolute first chord of the song
+							if (!(sectionIdx === 0 && i === 0 && interval.val === '-')) {
+								allIntervals.push(interval);
+							}
+						});
 
-  let freq, labels, colors;
-  if (normalize) {
-    // Group +n and -n (except tritone)
-    freq = Array(7).fill(0);
-    allIntervals.forEach(i => {
-      if (i.val === 6) freq[6]++; // tritone
-      else if (typeof i.val === 'number' && i.val >= 0 && i.val <= 6) freq[i.val]++;
-    });
-    labels = [0,1,2,3,4,5,6].map(i => `${i}`);
-    colors = ['#2980b9','#27ae60','#f39c12','#e67e22','#8e44ad','#c0392b','#7f8c8d'];
-  } else {
-    // Separate +n and -n
-    freq = Array(13).fill(0); // +1..+6, -1..-6, 0
-    allIntervals.forEach(i => {
-      if (i.val === 0) freq[0]++;
-      else if (i.val === 6) freq[12]++; // +6 or -6 (tritone)
-      else if (i.sign === '+') freq[i.val]++;
-      else if (i.sign === '-') freq[6 + i.val]++;
-    });
-    labels = ['0','+1','+2','+3','+4','+5','+6','-1','-2','-3','-4','-5','-6'];
-    colors = ['#2980b9','#27ae60','#f39c12','#e67e22','#8e44ad','#c0392b','#7f8c8d',
-      '#16a085','#2ecc71','#f1c40f','#e67e22','#9b59b6','#e74c3c'];
-  }
-  const total = freq.reduce((a, b) => a + b, 0);
-  const pct = freq.map(f => total ? (f / total * 100) : 0);
-  return { freq, pct, total, labels, colors };
-}
+						// Update lastNoteOfPreviousSection for the next iteration
+						let currentSectionLastValidNote = null;
+						for (let i = sectionBaseNotes.length - 1; i >= 0; i--) {
+							if (sectionBaseNotes[i] !== '-' && sectionBaseNotes[i] !== null) {
+								currentSectionLastValidNote = sectionBaseNotes[i];
+								break;
+							}
+						}
+						lastNoteOfPreviousSection = currentSectionLastValidNote;
+					});
+				});
 
-function renderGlobalIntervalStats() {
-  const songs = loadSongs();
-  const { freq, pct, total, labels, colors } = computeGlobalIntervalStats(songs, normalizeIntervals);
-  const barDiv = document.getElementById('global-interval-bar');
-  if (!barDiv) return;
-  if (total === 0) {
-    barDiv.innerHTML = '<p class="empty-state">No intervals yet.</p>';
-    return;
-  }
-  // Render bar only, skip 0% intervals
-  let bar = '<div id="interval-bar-rect" style="display:flex; height:40px; width:350px; border-radius:8px; overflow:hidden; box-shadow:0 1px 4px #0001; border:1px solid #ddd; position:relative;">';
-  for (let i = 0; i < freq.length; ++i) {
-    if (pct[i] > 0) {
-      bar += `<div class="interval-bar-segment" data-label="${labels[i]}" data-pct="${pct[i]}" style="background:${colors[i]};width:${pct[i]}%;height:100%;display:inline-block;cursor:pointer;"></div>`;
-    }
-  }
-  bar += '</div>';
-  // Add legend
-  bar += '<div style="display:flex;gap:0.5em;margin-top:0.5em;flex-wrap:wrap;">' +
-    labels.map((l,i)=> pct[i]>0 ? `<span style=\"display:inline-flex;align-items:center;\"><span style=\"display:inline-block;width:1.2em;height:1.2em;background:${colors[i]};margin-right:0.3em;border-radius:2px;\"></span>${l}</span>` : '').join('') + '</div>';
-  // Add toggle button
-  bar = `<h2 style=\"margin-right:1em;margin-bottom:0.5em;display:inline\">Interval Distribution</h2><button id="toggle-normalize-btn" class="btn btn-discreet" style="margin-bottom:0.7em;">${normalizeIntervals ? '+n/-n ' : 'Normalize'}</button><br/>` + bar;
-  barDiv.innerHTML = bar;
+				let freq, labels, colors;
+				if (normalize) {
+					// Group +n and -n (except tritone)
+					freq = Array(7).fill(0);
+					allIntervals.forEach((i) => {
+						if (i.val === 6) freq[6]++; // tritone
+						else if (typeof i.val === 'number' && i.val >= 0 && i.val <= 6) freq[i.val]++;
+					});
+					labels = [0, 1, 2, 3, 4, 5, 6].map((i) => `${i}`);
+					colors = ['#2980b9', '#27ae60', '#f39c12', '#e67e22', '#8e44ad', '#c0392b', '#7f8c8d'];
+				} else {
+					// Separate +n and -n
+					freq = Array(13).fill(0); // +1..+6, -1..-6, 0
+					allIntervals.forEach((i) => {
+						if (i.val === 0) freq[0]++;
+						else if (i.val === 6) freq[12]++; // +6 or -6 (tritone)
+						else if (i.sign === '+') freq[i.val]++;
+						else if (i.sign === '-') freq[6 + i.val]++;
+					});
+					labels = ['0', '+1', '+2', '+3', '+4', '+5', '+6', '-1', '-2', '-3', '-4', '-5', '-6'];
+					colors = [
+						'#2980b9',
+						'#27ae60',
+						'#f39c12',
+						'#e67e22',
+						'#8e44ad',
+						'#c0392b',
+						'#7f8c8d',
+						'#16a085',
+						'#2ecc71',
+						'#f1c40f',
+						'#e67e22',
+						'#9b59b6',
+						'#e74c3c',
+					];
+				}
+				const total = freq.reduce((a, b) => a + b, 0);
+				const pct = freq.map((f) => (total ? (f / total) * 100 : 0));
+				return { freq, pct, total, labels, colors };
+			}
 
-  // Popup for hover on global bar segments
-  let popup = getOrCreateIntervalPopup();
-  document.querySelectorAll('.interval-bar-segment').forEach(seg => {
-    seg.onmousemove = e => {
-      const label = seg.getAttribute('data-label');
-      const pctVal = parseFloat(seg.getAttribute('data-pct')).toFixed(1);
-      const totalOccurrences = total; // Total intervals considered for normalization
-      const currentIntervalFreq = freq[labels.indexOf(label)];
-      popup.innerHTML = `<b>Interval ${label}</b><br>Occurrences: ${currentIntervalFreq}<br>Total Percentage: ${pctVal}%`;
-      popup.style.display = 'block';
-      popup.style.left = (e.clientX + 12) + 'px';
-      popup.style.top = (e.clientY + 12) + 'px';
-    };
-    seg.onmouseleave = () => { hideIntervalPopup(); };
-  });
-  // Toggle button
-  document.getElementById('toggle-normalize-btn').onclick = function() {
-    normalizeIntervals = !normalizeIntervals;
-    renderGlobalIntervalStats();
-  };
-}
+			function renderGlobalIntervalStats() {
+				const songs = loadSongs();
+				const { freq, pct, total, labels, colors } = computeGlobalIntervalStats(songs, normalizeIntervals);
+				const barDiv = document.getElementById('global-interval-bar');
+				if (!barDiv) return;
+				if (total === 0) {
+					barDiv.innerHTML = '<p class="empty-state">No intervals yet.</p>';
+					return;
+				}
+				// Render bar only, skip 0% intervals
+				let bar =
+					'<div id="interval-bar-rect" style="display:flex; height:40px; width:350px; border-radius:8px; overflow:hidden; box-shadow:0 1px 4px #0001; border:1px solid #ddd; position:relative;">';
+				for (let i = 0; i < freq.length; ++i) {
+					if (pct[i] > 0) {
+						bar += `<div class="interval-bar-segment" data-label="${labels[i]}" data-pct="${pct[i]}" style="background:${colors[i]};width:${pct[i]}%;height:100%;display:inline-block;cursor:pointer;"></div>`;
+					}
+				}
+				bar += '</div>';
+				// Add legend
+				bar +=
+					'<div style="display:flex;gap:0.5em;margin-top:0.5em;flex-wrap:wrap;">' +
+					labels
+						.map((l, i) =>
+							pct[i] > 0
+								? `<span style=\"display:inline-flex;align-items:center;\"><span style=\"display:inline-block;width:1.2em;height:1.2em;background:${colors[i]};margin-right:0.3em;border-radius:2px;\"></span>${l}</span>`
+								: ''
+						)
+						.join('') +
+					'</div>';
+				// Add toggle button
+				bar =
+					`<h2 style=\"margin-right:1em;margin-bottom:0.5em;display:inline\">Interval Distribution</h2><button id="toggle-normalize-btn" class="btn btn-discreet" style="margin-bottom:0.7em;">${
+						normalizeIntervals ? '+n/-n ' : 'Normalize'
+					}</button><br/>` + bar;
+				barDiv.innerHTML = bar;
 
-// --- Custom Modal Functions for alerts/confirms ---
-function createModalContainer() {
-  let modalContainer = document.getElementById('custom-modal-container');
-  if (!modalContainer) {
-    modalContainer = document.createElement('div');
-    modalContainer.id = 'custom-modal-container';
-    modalContainer.style.cssText = `
+				// Popup for hover on global bar segments
+				let popup = getOrCreateIntervalPopup();
+				document.querySelectorAll('.interval-bar-segment').forEach((seg) => {
+					seg.onmousemove = (e) => {
+						const label = seg.getAttribute('data-label');
+						const pctVal = parseFloat(seg.getAttribute('data-pct')).toFixed(1);
+						const totalOccurrences = total; // Total intervals considered for normalization
+						const currentIntervalFreq = freq[labels.indexOf(label)];
+						popup.innerHTML = `<b>Interval ${label}</b><br>Occurrences: ${currentIntervalFreq}<br>Total Percentage: ${pctVal}%`;
+						popup.style.display = 'block';
+						popup.style.left = e.clientX + 12 + 'px';
+						popup.style.top = e.clientY + 12 + 'px';
+					};
+					seg.onmouseleave = () => {
+						hideIntervalPopup();
+					};
+				});
+				// Toggle button
+				document.getElementById('toggle-normalize-btn').onclick = function () {
+					normalizeIntervals = !normalizeIntervals;
+					renderGlobalIntervalStats();
+				};
+			}
+
+			// --- Custom Modal Functions for alerts/confirms ---
+			function createModalContainer() {
+				let modalContainer = document.getElementById('custom-modal-container');
+				if (!modalContainer) {
+					modalContainer = document.createElement('div');
+					modalContainer.id = 'custom-modal-container';
+					modalContainer.style.cssText = `
       position: fixed;
       top: 0;
       left: 0;
@@ -1418,23 +1594,23 @@ function createModalContainer() {
       opacity: 0;
       transition: visibility 0s, opacity 0.3s;
     `;
-    document.body.appendChild(modalContainer);
-  }
-  return modalContainer;
-}
+					document.body.appendChild(modalContainer);
+				}
+				return modalContainer;
+			}
 
-function createModalContent(message, type, onConfirmCallback = null) {
-  const modal = document.createElement('div');
+			function createModalContent(message, type, onConfirmCallback = null) {
+				const modal = document.createElement('div');
 
-  // Get computed value for --border-radius
-  // Create a temporary element to read the CSS variable
-  const tempDiv = document.createElement('div');
-  tempDiv.style.borderRadius = 'var(--border-radius)';
-  document.body.appendChild(tempDiv);
-  const borderRadiusValue = window.getComputedStyle(tempDiv).borderRadius;
-  document.body.removeChild(tempDiv); // Clean up the temporary element
+				// Get computed value for --border-radius
+				// Create a temporary element to read the CSS variable
+				const tempDiv = document.createElement('div');
+				tempDiv.style.borderRadius = 'var(--border-radius)';
+				document.body.appendChild(tempDiv);
+				const borderRadiusValue = window.getComputedStyle(tempDiv).borderRadius;
+				document.body.removeChild(tempDiv); // Clean up the temporary element
 
-  modal.style.cssText = `
+				modal.style.cssText = `
     background-color: var(--white-bg);
     padding: 2em;
     border-radius: ${borderRadiusValue}; /* Use the retrieved value here */
@@ -1449,79 +1625,83 @@ function createModalContent(message, type, onConfirmCallback = null) {
     gap: 1.5em;
   `;
 
-  const messageP = document.createElement('p');
-  messageP.textContent = message;
-  // Get computed value for --text-color as well for consistency
-  const tempTextDiv = document.createElement('div');
-  tempTextDiv.style.color = 'var(--text-color)';
-  document.body.appendChild(tempTextDiv);
-  const textColorValue = window.getComputedStyle(tempTextDiv).color;
-  document.body.removeChild(tempTextDiv);
+				const messageP = document.createElement('p');
+				messageP.textContent = message;
+				// Get computed value for --text-color as well for consistency
+				const tempTextDiv = document.createElement('div');
+				tempTextDiv.style.color = 'var(--text-color)';
+				document.body.appendChild(tempTextDiv);
+				const textColorValue = window.getComputedStyle(tempTextDiv).color;
+				document.body.removeChild(tempTextDiv);
 
-  messageP.style.fontSize = '1.1em';
-  messageP.style.color = textColorValue; // Use the retrieved value here
-  modal.appendChild(messageP);
+				messageP.style.fontSize = '1.1em';
+				messageP.style.color = textColorValue; // Use the retrieved value here
+				modal.appendChild(messageP);
 
-  const buttonContainer = document.createElement('div');
-  buttonContainer.style.display = 'flex';
-  buttonContainer.style.justifyContent = type === 'confirm' ? 'space-around' : 'center';
-  buttonContainer.style.gap = '1em';
-  modal.appendChild(buttonContainer);
+				const buttonContainer = document.createElement('div');
+				buttonContainer.style.display = 'flex';
+				buttonContainer.style.justifyContent = type === 'confirm' ? 'space-around' : 'center';
+				buttonContainer.style.gap = '1em';
+				modal.appendChild(buttonContainer);
 
-  if (type === 'message') {
-    const okBtn = document.createElement('button');
-    okBtn.textContent = 'OK';
-    okBtn.className = 'btn btn-primary';
-    okBtn.onclick = () => hideModal();
-    buttonContainer.appendChild(okBtn);
-  } else if (type === 'confirm') {
-    const confirmBtn = document.createElement('button');
-    confirmBtn.textContent = 'Yes';
-    confirmBtn.className = 'btn btn-danger';
-    confirmBtn.onclick = () => {
-      if (onConfirmCallback) onConfirmCallback();
-      hideModal();
-    };
-    buttonContainer.appendChild(confirmBtn);
+				if (type === 'message') {
+					const okBtn = document.createElement('button');
+					okBtn.textContent = 'OK';
+					okBtn.className = 'btn btn-primary';
+					okBtn.onclick = () => hideModal();
+					buttonContainer.appendChild(okBtn);
+				} else if (type === 'confirm') {
+					const confirmBtn = document.createElement('button');
+					confirmBtn.textContent = 'Yes';
+					confirmBtn.className = 'btn btn-danger';
+					confirmBtn.onclick = () => {
+						if (onConfirmCallback) onConfirmCallback();
+						hideModal();
+					};
+					buttonContainer.appendChild(confirmBtn);
 
-    const cancelBtn = document.createElement('button');
-    cancelBtn.textContent = 'Cancel';
-    cancelBtn.className = 'btn btn-discreet';
-    cancelBtn.onclick = () => hideModal();
-    buttonContainer.appendChild(cancelBtn);
-  }
-  return modal;
-}
+					const cancelBtn = document.createElement('button');
+					cancelBtn.textContent = 'Cancel';
+					cancelBtn.className = 'btn btn-discreet';
+					cancelBtn.onclick = () => hideModal();
+					buttonContainer.appendChild(cancelBtn);
+				}
+				return modal;
+			}
 
-function showModal(message, type, onConfirmCallback = null) {
-  const modalContainer = createModalContainer();
-  modalContainer.innerHTML = ''; // Clear previous content
-  const modalContent = createModalContent(message, type, onConfirmCallback);
-  modalContainer.appendChild(modalContent);
-  modalContainer.style.visibility = 'visible';
-  modalContainer.style.opacity = '1';
-  modalContent.style.transform = 'translateY(0)';
-}
+			function showModal(message, type, onConfirmCallback = null) {
+				const modalContainer = createModalContainer();
+				modalContainer.innerHTML = ''; // Clear previous content
+				const modalContent = createModalContent(message, type, onConfirmCallback);
+				modalContainer.appendChild(modalContent);
+				modalContainer.style.visibility = 'visible';
+				modalContainer.style.opacity = '1';
+				modalContent.style.transform = 'translateY(0)';
+			}
 
-function hideModal() {
-  const modalContainer = document.getElementById('custom-modal-container');
-  if (modalContainer) {
-    modalContainer.style.opacity = '0';
-    modalContainer.querySelector('div').style.transform = 'translateY(-20px)';
-    modalContainer.addEventListener('transitionend', function handler() {
-      modalContainer.style.visibility = 'hidden';
-      modalContainer.removeEventListener('transitionend', handler);
-    }, { once: true });
-  }
-}
+			function hideModal() {
+				const modalContainer = document.getElementById('custom-modal-container');
+				if (modalContainer) {
+					modalContainer.style.opacity = '0';
+					modalContainer.querySelector('div').style.transform = 'translateY(-20px)';
+					modalContainer.addEventListener(
+						'transitionend',
+						function handler() {
+							modalContainer.style.visibility = 'hidden';
+							modalContainer.removeEventListener('transitionend', handler);
+						},
+						{ once: true }
+					);
+				}
+			}
 
-function showMessageModal(message) {
-  showModal(message, 'message');
-}
+			function showMessageModal(message) {
+				showModal(message, 'message');
+			}
 
-function showConfirmationModal(message, onConfirmCallback) {
-  showModal(message, 'confirm', onConfirmCallback);
-}
-</script>
-</body>
+			function showConfirmationModal(message, onConfirmCallback) {
+				showModal(message, 'confirm', onConfirmCallback);
+			}
+		</script>
+	</body>
 </html>
