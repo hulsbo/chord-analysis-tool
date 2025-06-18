@@ -565,13 +565,13 @@
 					let sign, val;
 					if (up === 6 && down === 6) {
 						// Tritone: always choose +6 for consistency
-						sign = '+';
+						sign = '';
 						val = 6;
 					} else if (up <= down) {
-						sign = '+';
+						sign = '-';
 						val = up; // Corrected: up is already the interval value
 					} else {
-						sign = '-';
+						sign = '+';
 						val = down; // Corrected: down is already the interval value
 					}
 					intervals.push({ sign, val });
