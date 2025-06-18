@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jazz Chord Interval Analyzer</title>
+  <style>
+    :root {
+      --primary-color: #2980b9;
+      --primary-hover: #1c5980;
+      --danger-color: #e74c3c;
+      --danger-hover: #c0392b;
+      --warning-color: #f39c12;
+      --warning-hover: #e67e22;
+      --light-bg: #f9f9f9;
+      --white-bg: #fff;
+      --border-color: #ddd;
+      --text-color: #2c3e50;
+      --subtle-text: #555;
+      --border-radius: 8px;
+      --box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
+    /* New color variables for interval percentages */
+    --interval-green: #a8e6cf;
+    --interval-blue: #a7d9f7;
+    --interval-yellow: #fdfa7f;
+    --interval-red: #ff9999;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 2em;
+      background: var(--light-bg);
+      color: var(--text-color);
+    }
+    h1, h2 { color: var(--text-color); }
+    h1 { margin-bottom: 1.5em; }
+    h2 { margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5em; }
+
+    /* --- Buttons --- */
+    .btn {
+      border: none;
+      border-radius: 5px;
+      padding: 0.6em 1.2em;
+      cursor: pointer;
+      font-size: 0.95em;
+      font-weight: 500;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary { background: var(--primary-color); color: var(--white-bg); }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-danger { background: var(--danger-color); color: var(--white-bg); }
+    .btn-danger:hover { background: var(--danger-hover); }
+
+    .btn-warning { background: var(--warning-color); color: var(--white-bg); }
+    .btn-warning:hover { background: var(--warning-hover); }
+
+    .btn-discreet { background: #eee; color: #555; }
+    .btn-discreet:hover { background: #ddd; }
+
+    /* --- Form & Inputs --- */
+    .form-card {
+      background: var(--white-bg);
+      padding: 1.5em;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 2em;
+    }
+    .add-song-form input[type="text"] {
+      padding: 0.7em;
+      border-radius: 5px;
+      border: 1px solid var(--border-color);
+      font-size: 1em;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    #sections-container {
+      margin: 1em 0;
+      display: grid;
+      gap: 0.75em;
+    }
+    .section-field {
+      display: grid;
+      grid-template-columns: 1fr 2fr auto;
+      gap: 0.5em;
+      align-items: center;
+    }
+    .form-actions {
+      margin-top: 1.5em;
+      display: flex;
+      gap: 0.5em;
+      justify-content: space-between;
+    }
+
+    /* --- Song List --- */
+    .song-list { margin-top: 2em; }
+    .empty-state { color: var(--subtle-text); text-align: center; font-style: italic; }
+    .song {
+      background: var(--white-bg);
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 1em;
+      transition: box-shadow 0.2s;
+      overflow: hidden; /* Contains the border radius for children */
+    }
+    .song:focus { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+    .song-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1em;
+      padding: 0.75em 1em;
+      cursor: pointer;
+    }
+    .song:hover .song-main { background: #e3f1ff; }
+
+    .song-info {
+      flex: 1;
+      min-width: 0; /* Prevents flex item from overflowing */
+    }
+    .song-title {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.25em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .song-sections {
+      font-size: 0.9em;
+      color: var(--subtle-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .song-actions {
+      display: flex;
+      gap: 0.5em;
+    }
+
+    /* --- Tables --- */
+    .interval-table, .song-details-table {
+      border-collapse: collapse;
+      font-size: 0.9em;
+      white-space: nowrap;
+    }
+    .interval-table th, .interval-table td,
+    .song-details-table th, .song-details-table td {
+      border: 1px solid var(--border-color);
+      padding: 0.7em 1.2em;
+      text-align: center;
+      font-size: 1.25em;
+    }
+    .interval-table th { background: #f0f0f0; }
+    .song-details-table th, .song-details-table .section-header {
+      font-size: 1.3em;
+    }
+    .song-details-table td:not(:last-child) {
+      margin-right: 1.5em;
+    }
+
+    /* --- Expanded Details --- */
+    .song-details {
+      display: none; /* Hidden by default */
+      padding: 0 1em 1em 1em;
+      background-color: #fdfdfd;
+      border-top: 1px solid #eaf6ff;
+    }
+    .song.expanded .song-details {
+      display: block; /* Shown when parent has .expanded class */
+    }
+    .song-details-table {
+      width: auto;
+      margin-top: 0.5em;
+      border-radius: 4px;
+      overflow: hidden;
+      font-size: 1em;
+    }
+    .song-details-table .section-header {
+      background: #eaf6ff;
+      font-weight: bold;
+      padding: 0.5em;
+      vertical-align: middle;
+    }
+    .song-details-table td {
+      padding: 0.5em 0.7em;
+      background: var(--white-bg);
+    }
+    .song-details-table .interval-value {
+      color: var(--subtle-text);
+      font-size: 0.95em;
+    }
+
+    /* --- Edit Form --- */
+    .edit-form {
+      display: none;
+      background: #f8f9fa;
+      padding: 1em;
+      border-top: 1px solid var(--border-color);
+    }
+    .edit-form.active {
+      display: block;
+    }
+    .edit-form input[type="text"] {
+      padding: 0.5em;
+      border-radius: 3px;
+      border: 1px solid var(--border-color);
+      font-size: 0.9em;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .edit-section-field {
+      display: grid;
+      grid-template-columns: 1fr 2fr auto;
+      gap: 0.5em;
+      align-items: center;
+      margin-bottom: 0.5em;
+    }
+    .edit-actions {
+      margin-top: 1em;
+      display: flex;
+      gap: 0.5em;
+    }
+
+    /* --- Help Text --- */
+    .help-text {
+      font-size: 0.85em;
+      color: var(--subtle-text);
+      margin-top: 0.5em;
+      font-style: italic;
+    }
+
+    /* --- Header for Import/Export --- */
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5em;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 0.5em;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="header-container">
+    <h1>Jazz Chord Interval Analyzer</h1>
+    <div class="header-buttons">
+      <button type="button" id="import-songs-btn" class="btn btn-primary">Import Songs</button>
+      <button type="button" id="export-songs-btn" class="btn btn-primary">Export Songs</button>
+      <input type="file" id="import-file-input" accept=".json" style="display: none;">
+    </div>
+  </div>
+
+  <div id="global-interval-flex" style="display: flex; align-items: flex-start; gap: 2em; margin-bottom: 2em;">
+    <div id="global-interval-stats"></div>
+    <div id="global-interval-bar"></div>
+  </div>
+
+  <div class="form-card">
+    <form class="add-song-form">
+      <h2>Add New Song</h2>
+      <input type="text" id="song-title" placeholder="Song Title (e.g., All of Me)" required />
+      <div id="sections-container"></div>
+      <div class="help-text">
+        Tip: Use "-" to represent the same chord continuing for another bar (e.g., "Cmaj7 - Dm7 G7")
+      </div>
+      <div class="form-actions">
+        <button type="button" id="add-section-btn" class="btn btn-discreet">Add Section</button>
+        <button type="submit" class="btn btn-primary">Add Song</button>
+      </div>
+    </form>
+  </div>
+
+  <button type="button" id="delete-all-btn" class="btn btn-danger">Delete All Songs</button>
+
+  <div class="song-list" id="song-list"></div>
+
+  <script>
+// Chord root note mapping (C=0, C#/Db=1, ..., B=11)
+const NOTE_TO_NUM = {
+  'C': 0, 'B#': 0,
+  'C#': 1, 'Db': 1,
+  'D': 2,
+  'D#': 3, 'Eb': 3,
+  'E': 4, 'Fb': 4,
+  'F': 5, 'E#': 5,
+  'F#': 6, 'Gb': 6,
+  'G': 7,
+  'G#': 8, 'Ab': 8,
+  'A': 9,
+  'A#': 10, 'Bb': 10,
+  'B': 11, 'Cb': 11
+};
+
+function parseChordRoot(chord) {
+  // Handle "-" for same chord continuation
+  if (chord === '-') return '-';
+
+  // Extract root (e.g. C, D#, Eb, F, etc.)
+  const match = chord.match(/^([A-G](?:#|b)?)/i);
+  if (!match) return null;
+  let root = match[1].toUpperCase();
+  // Normalize flats/sharps
+  if (root.length === 2 && root[1] === 'B') root = root[0] + 'b';
+  if (root.length === 2 && root[1] === '#') root = root[0] + '#';
+  return NOTE_TO_NUM[root] !== undefined ? NOTE_TO_NUM[root] : null;
+}
+
+/**
+ * Calculates chromatic intervals (mod 12) between a sequence of base notes.
+ *
+ * @param {Array<number|string|null>} baseNotes - An array of parsed base note numbers (0-11),
+ * '-' for continuation, or null for unparseable chords.
+ * @param {number|null} [initialLastValidNote=null] - The root note of the chord immediately
+ * preceding the first chord in `baseNotes`. Used for calculating the interval to the first chord.
+ * If null, the first chord will have no interval.
+ * @returns {Array<{sign: string, val: number|string}>} An array of interval objects.
+ */
+function getIntervals(baseNotes, initialLastValidNote = null) {
+  const intervals = [];
+  let lastValidNote = initialLastValidNote;
+
+  for (let i = 0; i < baseNotes.length; ++i) {
+    const currentNote = baseNotes[i];
+
+    if (currentNote === '-' || currentNote === null) {
+      // Dash or invalid chord - no interval
+      intervals.push({ sign: '', val: '-' });
+      continue;
+    }
+
+    if (lastValidNote === null) {
+      // First valid chord in the sequence (or first of the song) - no interval
+      intervals.push({ sign: '', val: '-' });
+      lastValidNote = currentNote;
+      continue;
+    }
+
+    // Check if same base note as previous valid chord
+    if (currentNote === lastValidNote) {
+      intervals.push({ sign: '', val: '-' });
+      continue;
+    }
+
+    let up = (currentNote - lastValidNote + 12) % 12;
+    let down = (lastValidNote - currentNote + 12) % 12;
+    let sign, val;
+    if (up === 6 && down === 6) {
+      // Tritone: always choose +6 for consistency
+      sign = '+';
+      val = 6;
+    } else if (up <= down) {
+      sign = '+';
+      val = up; // Corrected: up is already the interval value
+    } else {
+      sign = '-';
+      val = down; // Corrected: down is already the interval value
+    }
+    intervals.push({ sign, val });
+    lastValidNote = currentNote; // Update lastValidNote for the next iteration
+  }
+  return intervals;
+}
+
+function intervalFrequency(intervals) {
+  // Count frequency of intervals 0-6 (ignore sign and dashes)
+  const freq = Array(7).fill(0);
+  intervals.forEach(i => {
+    if (typeof i === 'object' && typeof i.val === 'number' && i.val >= 0 && i.val <= 6) {
+      freq[i.val]++;
+    }
+  });
+  return freq;
+}
+
+// --- LOCAL STORAGE FUNCTIONS ---
+const LOCAL_STORAGE_KEY = 'jazzChordAnalyzerSongs';
+
+function saveSongs(songs) {
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(songs));
+}
+
+function loadSongs() {
+  const storedSongs = localStorage.getItem(LOCAL_STORAGE_KEY);
+  return storedSongs ? JSON.parse(storedSongs) : [];
+}
+// --- END LOCAL STORAGE FUNCTIONS ---
+
+// --- IMPORT/EXPORT FUNCTIONS ---
+function exportSongs() {
+  const songs = loadSongs();
+  if (songs.length === 0) {
+    showMessageModal('There are no songs to export.'); // Use custom modal
+    return;
+  }
+  const dataStr = JSON.stringify(songs, null, 2); // Pretty print JSON
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'jazz_songs_data.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url); // Clean up
+  showMessageModal('Songs exported successfully!'); // Use custom modal
+}
+
+function importSongs() {
+  const fileInput = document.getElementById('import-file-input');
+  fileInput.click(); // Trigger click on the hidden file input
+}
+
+document.getElementById('import-file-input').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (!file) {
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const importedData = JSON.parse(e.target.result);
+      // Basic validation: Check if it's an array and contains objects with 'title' and 'sections'
+      if (!Array.isArray(importedData) || !importedData.every(song =>
+          typeof song === 'object' && song !== null && 'title' in song && 'sections' in song && Array.isArray(song.sections)
+      )) {
+        showMessageModal('Invalid JSON file format. Please upload a file with song list data.'); // Use custom modal
+        return;
+      }
+
+      // Merge or replace? For simplicity, let's replace for now. User can delete all if they want to merge.
+      showConfirmationModal('Imported songs will replace existing songs. Continue?', () => { // Use custom modal
+        saveSongs(importedData);
+        renderSongs();
+        showMessageModal('Songs imported successfully!'); // Use custom modal
+      });
+    } catch (error) {
+      console.error('Error parsing JSON:', error);
+      showMessageModal('Error reading or parsing the file. Please ensure it is a valid JSON file.'); // Use custom modal
+    } finally {
+      // Clear the file input value so the same file can be selected again if needed
+      event.target.value = '';
+    }
+  };
+  reader.onerror = function() {
+    showMessageModal('Error reading file.'); // Use custom modal
+    event.target.value = ''; // Clear input on error
+  };
+  reader.readAsText(file);
+});
+// --- END IMPORT/EXPORT FUNCTIONS ---
+
+function createSectionField(label = '', chords = '') {
+  const div = document.createElement('div');
+  div.className = 'section-field';
+  div.innerHTML = `
+    <input type="text" class="section-label" placeholder="Section (e.g. A, B)" value="${label}" required>
+    <input type="text" class="section-chords" placeholder="Chords (e.g. Cmaj7 - Dm7 G7)" value="${chords}" required>
+    <button type="button" class="btn btn-discreet remove-section-btn">Remove</button>
+  `;
+  div.querySelector('.remove-section-btn').onclick = () => div.remove();
+  return div;
+}
+
+function createEditSectionField(label = '', chords = '') {
+  const div = document.createElement('div');
+  div.className = 'edit-section-field';
+  div.innerHTML = `
+    <input type="text" class="edit-section-label" placeholder="Section" value="${label}" required>
+    <input type="text" class="edit-section-chords" placeholder="Chords (use - for same chord)" value="${chords}" required>
+    <button type="button" class="btn btn-discreet remove-edit-section-btn">Remove</button>
+  `;
+  div.querySelector('.remove-edit-section-btn').onclick = () => div.remove();
+  return div;
+}
+
+function setupSectionFields() {
+  const container = document.getElementById('sections-container');
+  container.innerHTML = '';
+  // Add one section by default
+  container.appendChild(createSectionField());
+}
+
+document.getElementById('add-section-btn').onclick = function() {
+  document.getElementById('sections-container').appendChild(createSectionField());
+};
+
+document.getElementById('delete-all-btn').onclick = function() {
+  // Using custom modal instead of alert/confirm
+  showConfirmationModal('Are you sure you want to delete all songs? This cannot be undone.', () => {
+    localStorage.clear(); // Clears all data in localStorage for this origin
+    renderSongs(); // Re-render to show empty state
+  });
+};
+
+function renderSongs() {
+  const songList = document.getElementById('song-list');
+  songList.innerHTML = '';
+  const songs = loadSongs();
+
+  renderGlobalIntervalStats();
+
+  if (songs.length === 0) {
+    songList.innerHTML = '<p class="empty-state">No songs yet. Add one using the form above!</p>';
+    return;
+  }
+
+  songs.forEach((song, idx) => {
+    let songIntervals = [];
+    let lastNoteOfPreviousSection = null;
+
+    song.sections.forEach((section, sectionIdx) => {
+      const sectionChords = Array.isArray(section.chords) ? section.chords : [];
+      const sectionBaseNotes = sectionChords.map(parseChordRoot);
+
+      const sectionIntervals = getIntervals(sectionBaseNotes, sectionIdx === 0 ? null : lastNoteOfPreviousSection);
+      songIntervals.push(...sectionIntervals);
+
+      for (let i = sectionBaseNotes.length - 1; i >= 0; i--) {
+        if (sectionBaseNotes[i] !== '-' && sectionBaseNotes[i] !== null) {
+          lastNoteOfPreviousSection = sectionBaseNotes[i];
+          break;
+        }
+      }
+    });
+
+    const freq = intervalFrequency(songIntervals);
+    // Calculate total valid intervals for this specific song
+    const totalSongIntervals = freq.reduce((sum, count) => sum + count, 0);
+
+    const songDiv = document.createElement('div');
+    songDiv.className = 'song';
+    songDiv.tabIndex = 0;
+
+    let intervalTableHtml = `<tr><th>Int</th>`;
+    // Add interval headers
+    for (let i = 0; i <= 6; i++) {
+      intervalTableHtml += `<th>${i}</th>`;
+    }
+    intervalTableHtml += `</tr><tr><th>Ct</th>`;
+
+    // Add frequency counts with color coding
+    for (let i = 0; i <= 6; i++) {
+      const percentage = totalSongIntervals > 0 ? (freq[i] / totalSongIntervals * 100) : 0;
+      const color = getIntervalColor(percentage);
+      intervalTableHtml += `<td style="background-color: ${color}">${freq[i]}</td>`;
+    }
+    intervalTableHtml += `</tr>`;
+
+    songDiv.innerHTML = `
+      <div class="song-main">
+        <div class="song-info">
+          <span class="song-title">${song.title}</span>
+        </div>
+        <div class="song-summary-table">
+          <table class="interval-table">
+            ${intervalTableHtml}
+          </table>
+        </div>
+        <div class="song-actions">
+          <button class="btn btn-warning edit-btn" data-idx="${idx}">Edit</button>
+          <button class="btn btn-danger delete-btn" data-idx="${idx}">Delete</button>
+        </div>
+      </div>
+      <div class="song-details"></div>
+      <div class="edit-form" id="edit-form-${idx}">
+        <h3>Edit Song</h3>
+        <input type="text" class="edit-title" value="${song.title}" placeholder="Song Title" required>
+        <div class="edit-sections-container"></div>
+        <div class="edit-actions">
+          <button type="button" class="btn btn-discreet add-edit-section-btn">Add Section</button>
+          <button type="button" class="btn btn-primary save-edit-btn" data-idx="${idx}">Save Changes</button>
+          <button type="button" class="btn btn-discreet cancel-edit-btn" data-idx="${idx}">Cancel</button>
+        </div>
+      </div>
+    `;
+
+    songDiv.querySelector('.song-main').onclick = function(e) {
+      if (e.target.closest('.edit-btn') || e.target.closest('.delete-btn')) return;
+      const details = songDiv.querySelector('.song-details');
+      const isExpanded = songDiv.classList.toggle('expanded');
+      if (isExpanded && !details.hasChildNodes()) {
+        details.innerHTML = renderSongDetails(song);
+        addIntervalHoverListeners(details);
+      }
+    };
+
+    songDiv.onkeydown = function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        songDiv.querySelector('.song-main').click();
+      }
+    };
+
+    const editForm = songDiv.querySelector('.edit-form');
+    const editSectionsContainer = editForm.querySelector('.edit-sections-container');
+    song.sections.forEach(section => {
+      editSectionsContainer.appendChild(
+        createEditSectionField(section.label, Array.isArray(section.chords) ? section.chords.join(' ') : '')
+      );
+    });
+    editForm.querySelector('.add-edit-section-btn').onclick = function() {
+      editSectionsContainer.appendChild(createEditSectionField());
+    };
+    editForm.querySelector('.save-edit-btn').onclick = function() {
+      const title = editForm.querySelector('.edit-title').value.trim();
+      const sectionDivs = Array.from(editForm.querySelectorAll('.edit-section-field'));
+      const sections = sectionDivs.map(div => ({
+        label: div.querySelector('.edit-section-label').value.trim(),
+        chords: div.querySelector('.edit-section-chords').value.trim().split(/\s+/).filter(x => x)
+      })).filter(sec => sec.label && sec.chords.length > 0);
+
+      if (!title || sections.length === 0) {
+        showMessageModal('Please provide a song title and at least one valid section.');
+        return;
+      }
+      const songs = loadSongs();
+      songs[idx] = { title, sections };
+      saveSongs(songs);
+      renderSongs();
+    };
+    editForm.querySelector('.cancel-edit-btn').onclick = function() {
+      editForm.classList.remove('active');
+    };
+    songDiv.querySelector('.delete-btn').onclick = function(e) {
+      e.stopPropagation();
+      showConfirmationModal(`Are you sure you want to delete "${song.title}"?`, () => {
+        const songs = loadSongs();
+        songs.splice(idx, 1);
+        saveSongs(songs);
+        renderSongs();
+      });
+    };
+
+    songList.appendChild(songDiv);
+  });
+}
+
+// Helper function to get color based on percentage
+function getIntervalColor(percentage) {
+  if (percentage === 0) {
+    return 'var(--white-bg)'; // White for 0 counts
+  } else if (percentage > 0 && percentage < 10) {
+    return '#a8e6cf'; // Light Green
+  } else if (percentage >= 10 && percentage < 15) {
+    return '#a7d9f7'; // Light Blue
+  } else if (percentage >= 15 && percentage < 33) {
+    return '#fdfa7f'; // Light Yellow
+  } else {
+    return '#ff9999'; // Light Red (15% and above)
+  }
+}
+
+function renderSongDetails(song) {
+  let html = '<table class="song-details-table">';
+  let lastNoteOfPreviousSection = null; // To carry over the last chord's note
+
+  song.sections.forEach((section, sectionIdx) => {
+    let chordCells = '';
+    let intervalCells = '';
+
+    const sectionChords = section.chords;
+    const sectionBaseNotes = sectionChords.map(parseChordRoot);
+
+    // Determine the initialLastValidNote for this section's getIntervals call
+    // For the first section, it's null. For subsequent sections, it's the last valid note from the *previous* section.
+    const initialNoteForSection = sectionIdx === 0 ? null : lastNoteOfPreviousSection;
+    const intervals = getIntervals(sectionBaseNotes, initialNoteForSection);
+
+    sectionChords.forEach((chord, i) => {
+      chordCells += `<td>${chord}</td>`;
+
+      const interval = intervals[i];
+      if (interval.val === '-') {
+        intervalCells += '<td>-</td>';
+      } else {
+        // Add data attributes for interval value and sign for easy retrieval
+        intervalCells += `<td class="interval-value" data-interval-sign="${interval.sign}" data-interval-val="${interval.val}">${interval.sign}${interval.val}</td>`;
+      }
+    });
+
+    html += `
+      <tr>
+        <th rowspan="2" class="section-header">${section.label}</th>
+        ${chordCells}
+      </tr>
+      <tr>${intervalCells}</tr>
+    `;
+
+    // After processing a section, find its last valid chord to pass to the next section
+    let currentSectionLastValidNote = null;
+    for (let i = sectionBaseNotes.length - 1; i >= 0; i--) {
+      if (sectionBaseNotes[i] !== '-' && sectionBaseNotes[i] !== null) {
+        currentSectionLastValidNote = sectionBaseNotes[i];
+        break;
+      }
+    }
+    lastNoteOfPreviousSection = currentSectionLastValidNote;
+  });
+  html += '</table>';
+  return html;
+}
+
+function addIntervalHoverListeners(containerElement) {
+  const intervalCells = containerElement.querySelectorAll('.interval-value');
+  intervalCells.forEach(cell => {
+    const intervalVal = parseInt(cell.getAttribute('data-interval-val'));
+    const intervalSign = cell.getAttribute('data-interval-sign');
+
+    // Only add listeners for valid numeric intervals
+    if (!isNaN(intervalVal)) {
+      cell.onmousemove = e => {
+        const popup = getOrCreateIntervalPopup();
+        const globalStats = computeGlobalIntervalStats(loadSongs(), normalizeIntervals);
+
+        let displayLabel;
+        let frequencyCount = 0;
+        let percentage = 0;
+
+        if (normalizeIntervals) {
+          displayLabel = intervalVal;
+          if (intervalVal >= 0 && intervalVal <= 6) {
+             frequencyCount = globalStats.freq[intervalVal];
+          }
+        } else {
+          // Recreate the logic from computeGlobalIntervalStats to get the correct index
+          if (intervalVal === 0) {
+            displayLabel = '0';
+            frequencyCount = globalStats.freq[0];
+          } else if (intervalVal === 6) { // Tritone
+            displayLabel = (intervalSign === '+' ? '+' : '-') + '6'; // Display sign for tritone
+            frequencyCount = globalStats.freq[12];
+          } else if (intervalSign === '+') {
+            displayLabel = `+${intervalVal}`;
+            frequencyCount = globalStats.freq[intervalVal];
+          } else if (intervalSign === '-') {
+            displayLabel = `-${intervalVal}`;
+            frequencyCount = globalStats.freq[6 + intervalVal];
+          }
+        }
+        percentage = globalStats.total ? (frequencyCount / globalStats.total * 100).toFixed(1) : 0;
+
+        popup.innerHTML = `<b>Interval ${displayLabel}</b><br>Total Percentage: ${percentage}%`;
+        popup.style.display = 'block';
+        popup.style.left = (e.clientX + 12) + 'px';
+        popup.style.top = (e.clientY + 12) + 'px';
+      };
+      cell.onmouseleave = () => {
+        hideIntervalPopup();
+      };
+    }
+  });
+}
+
+function getOrCreateIntervalPopup() {
+  let popup = document.getElementById('interval-hover-popup');
+  if (!popup) {
+    popup = document.createElement('div');
+    popup.id = 'interval-hover-popup';
+    popup.style.position = 'fixed';
+    popup.style.pointerEvents = 'none';
+    popup.style.background = '#fff';
+    popup.style.border = '1px solid #bbb';
+    popup.style.borderRadius = '6px';
+    popup.style.boxShadow = '0 2px 8px #0002';
+    popup.style.padding = '0.5em 1em';
+    popup.style.fontSize = '1em';
+    popup.style.zIndex = 1000;
+    popup.style.display = 'none';
+    document.body.appendChild(popup);
+  }
+  return popup;
+}
+
+function hideIntervalPopup() {
+  const popup = document.getElementById('interval-hover-popup');
+  if (popup) {
+    popup.style.display = 'none';
+  }
+}
+
+document.querySelector('.add-song-form').onsubmit = function(e) {
+  e.preventDefault();
+  const titleInput = document.getElementById('song-title');
+  const title = titleInput.value.trim();
+
+  const sectionDivs = Array.from(document.querySelectorAll('#sections-container .section-field'));
+  const sections = sectionDivs.map(div => ({
+    label: div.querySelector('.section-label').value.trim(),
+    chords: div.querySelector('.section-chords').value.trim().split(/\s+/).filter(x => x)
+  })).filter(sec => sec.label && sec.chords.length > 0);
+
+  if (!title || sections.length === 0) {
+    // Using custom modal instead of alert/confirm
+    showMessageModal('Please provide a song title and at least one valid section.');
+    return;
+  }
+
+  const songs = loadSongs();
+  songs.push({ title, sections });
+  saveSongs(songs);
+  renderSongs();
+
+  this.reset();
+  titleInput.focus();
+  setupSectionFields();
+};
+
+window.onload = function() {
+  renderSongs();
+  setupSectionFields();
+  // Attach event listeners for import/export buttons after DOM is loaded
+  document.getElementById('export-songs-btn').onclick = exportSongs;
+  document.getElementById('import-songs-btn').onclick = importSongs;
+};
+
+// --- GLOBAL INTERVAL STATS ---
+let normalizeIntervals = true;
+
+function computeGlobalIntervalStats(songs, normalize = true) {
+  // Aggregate all intervals from all songs, considering section transitions
+  let allIntervals = [];
+
+  songs.forEach(song => {
+    let lastNoteOfPreviousSection = null; // Reset for each song
+
+    song.sections.forEach((section, sectionIdx) => {
+      const sectionChords = Array.isArray(section.chords) ? section.chords : [];
+      const sectionBaseNotes = sectionChords.map(parseChordRoot);
+
+      // Pass the last note of the previous section for the first chord of this section
+      const sectionIntervals = getIntervals(sectionBaseNotes, sectionIdx === 0 ? null : lastNoteOfPreviousSection);
+      
+      // Add all intervals from this section to the global list, filtering out the initial '-'
+      // if it was the very first chord of the song. Otherwise, the '-' from internal
+      // same-chord continuations will still be filtered later by intervalFrequency.
+      sectionIntervals.forEach((interval, i) => {
+        // Only include the first chord interval if it's not the absolute first chord of the song
+        if (!(sectionIdx === 0 && i === 0 && interval.val === '-')) {
+          allIntervals.push(interval);
+        }
+      });
+
+      // Update lastNoteOfPreviousSection for the next iteration
+      let currentSectionLastValidNote = null;
+      for (let i = sectionBaseNotes.length - 1; i >= 0; i--) {
+        if (sectionBaseNotes[i] !== '-' && sectionBaseNotes[i] !== null) {
+          currentSectionLastValidNote = sectionBaseNotes[i];
+          break;
+        }
+      }
+      lastNoteOfPreviousSection = currentSectionLastValidNote;
+    });
+  });
+
+  let freq, labels, colors;
+  if (normalize) {
+    // Group +n and -n (except tritone)
+    freq = Array(7).fill(0);
+    allIntervals.forEach(i => {
+      if (i.val === 6) freq[6]++; // tritone
+      else if (typeof i.val === 'number' && i.val >= 0 && i.val <= 6) freq[i.val]++;
+    });
+    labels = [0,1,2,3,4,5,6].map(i => `${i}`);
+    colors = ['#2980b9','#27ae60','#f39c12','#e67e22','#8e44ad','#c0392b','#7f8c8d'];
+  } else {
+    // Separate +n and -n
+    freq = Array(13).fill(0); // +1..+6, -1..-6, 0
+    allIntervals.forEach(i => {
+      if (i.val === 0) freq[0]++;
+      else if (i.val === 6) freq[12]++; // +6 or -6 (tritone)
+      else if (i.sign === '+') freq[i.val]++;
+      else if (i.sign === '-') freq[6 + i.val]++;
+    });
+    labels = ['0','+1','+2','+3','+4','+5','+6','-1','-2','-3','-4','-5','-6'];
+    colors = ['#2980b9','#27ae60','#f39c12','#e67e22','#8e44ad','#c0392b','#7f8c8d',
+      '#16a085','#2ecc71','#f1c40f','#e67e22','#9b59b6','#e74c3c'];
+  }
+  const total = freq.reduce((a, b) => a + b, 0);
+  const pct = freq.map(f => total ? (f / total * 100) : 0);
+  return { freq, pct, total, labels, colors };
+}
+
+function renderGlobalIntervalStats() {
+  const songs = loadSongs();
+  const { freq, pct, total, labels, colors } = computeGlobalIntervalStats(songs, normalizeIntervals);
+  const barDiv = document.getElementById('global-interval-bar');
+  if (!barDiv) return;
+  if (total === 0) {
+    barDiv.innerHTML = '<p class="empty-state">No intervals yet.</p>';
+    return;
+  }
+  // Render bar only, skip 0% intervals
+  let bar = '<div id="interval-bar-rect" style="display:flex; height:40px; width:350px; border-radius:8px; overflow:hidden; box-shadow:0 1px 4px #0001; border:1px solid #ddd; position:relative;">';
+  for (let i = 0; i < freq.length; ++i) {
+    if (pct[i] > 0) {
+      bar += `<div class="interval-bar-segment" data-label="${labels[i]}" data-pct="${pct[i]}" style="background:${colors[i]};width:${pct[i]}%;height:100%;display:inline-block;cursor:pointer;"></div>`;
+    }
+  }
+  bar += '</div>';
+  // Add legend
+  bar += '<div style="display:flex;gap:0.5em;margin-top:0.5em;flex-wrap:wrap;">' +
+    labels.map((l,i)=> pct[i]>0 ? `<span style=\"display:inline-flex;align-items:center;\"><span style=\"display:inline-block;width:1.2em;height:1.2em;background:${colors[i]};margin-right:0.3em;border-radius:2px;\"></span>${l}</span>` : '').join('') + '</div>';
+  // Add toggle button
+  bar = `<h2 style=\"margin-right:1em;margin-bottom:0.5em;display:inline\">Interval Distribution</h2><button id="toggle-normalize-btn" class="btn btn-discreet" style="margin-bottom:0.7em;">${normalizeIntervals ? '+n/-n ' : 'Normalize'}</button><br/>` + bar;
+  barDiv.innerHTML = bar;
+
+  // Popup for hover on global bar segments
+  let popup = getOrCreateIntervalPopup();
+  document.querySelectorAll('.interval-bar-segment').forEach(seg => {
+    seg.onmousemove = e => {
+      const label = seg.getAttribute('data-label');
+      const pctVal = parseFloat(seg.getAttribute('data-pct')).toFixed(1);
+      const totalOccurrences = total; // Total intervals considered for normalization
+      const currentIntervalFreq = freq[labels.indexOf(label)];
+      popup.innerHTML = `<b>Interval ${label}</b><br>Occurrences: ${currentIntervalFreq}<br>Total Percentage: ${pctVal}%`;
+      popup.style.display = 'block';
+      popup.style.left = (e.clientX + 12) + 'px';
+      popup.style.top = (e.clientY + 12) + 'px';
+    };
+    seg.onmouseleave = () => { hideIntervalPopup(); };
+  });
+  // Toggle button
+  document.getElementById('toggle-normalize-btn').onclick = function() {
+    normalizeIntervals = !normalizeIntervals;
+    renderGlobalIntervalStats();
+  };
+}
+
+// --- Custom Modal Functions for alerts/confirms ---
+function createModalContainer() {
+  let modalContainer = document.getElementById('custom-modal-container');
+  if (!modalContainer) {
+    modalContainer = document.createElement('div');
+    modalContainer.id = 'custom-modal-container';
+    modalContainer.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s, opacity 0.3s;
+    `;
+    document.body.appendChild(modalContainer);
+  }
+  return modalContainer;
+}
+
+function createModalContent(message, type, onConfirmCallback = null) {
+  const modal = document.createElement('div');
+
+  // Get computed value for --border-radius
+  // Create a temporary element to read the CSS variable
+  const tempDiv = document.createElement('div');
+  tempDiv.style.borderRadius = 'var(--border-radius)';
+  document.body.appendChild(tempDiv);
+  const borderRadiusValue = window.getComputedStyle(tempDiv).borderRadius;
+  document.body.removeChild(tempDiv); // Clean up the temporary element
+
+  modal.style.cssText = `
+    background-color: var(--white-bg);
+    padding: 2em;
+    border-radius: ${borderRadiusValue}; /* Use the retrieved value here */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    transform: translateY(-20px);
+    transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+  `;
+
+  const messageP = document.createElement('p');
+  messageP.textContent = message;
+  // Get computed value for --text-color as well for consistency
+  const tempTextDiv = document.createElement('div');
+  tempTextDiv.style.color = 'var(--text-color)';
+  document.body.appendChild(tempTextDiv);
+  const textColorValue = window.getComputedStyle(tempTextDiv).color;
+  document.body.removeChild(tempTextDiv);
+
+  messageP.style.fontSize = '1.1em';
+  messageP.style.color = textColorValue; // Use the retrieved value here
+  modal.appendChild(messageP);
+
+  const buttonContainer = document.createElement('div');
+  buttonContainer.style.display = 'flex';
+  buttonContainer.style.justifyContent = type === 'confirm' ? 'space-around' : 'center';
+  buttonContainer.style.gap = '1em';
+  modal.appendChild(buttonContainer);
+
+  if (type === 'message') {
+    const okBtn = document.createElement('button');
+    okBtn.textContent = 'OK';
+    okBtn.className = 'btn btn-primary';
+    okBtn.onclick = () => hideModal();
+    buttonContainer.appendChild(okBtn);
+  } else if (type === 'confirm') {
+    const confirmBtn = document.createElement('button');
+    confirmBtn.textContent = 'Yes';
+    confirmBtn.className = 'btn btn-danger';
+    confirmBtn.onclick = () => {
+      if (onConfirmCallback) onConfirmCallback();
+      hideModal();
+    };
+    buttonContainer.appendChild(confirmBtn);
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.className = 'btn btn-discreet';
+    cancelBtn.onclick = () => hideModal();
+    buttonContainer.appendChild(cancelBtn);
+  }
+  return modal;
+}
+
+function showModal(message, type, onConfirmCallback = null) {
+  const modalContainer = createModalContainer();
+  modalContainer.innerHTML = ''; // Clear previous content
+  const modalContent = createModalContent(message, type, onConfirmCallback);
+  modalContainer.appendChild(modalContent);
+  modalContainer.style.visibility = 'visible';
+  modalContainer.style.opacity = '1';
+  modalContent.style.transform = 'translateY(0)';
+}
+
+function hideModal() {
+  const modalContainer = document.getElementById('custom-modal-container');
+  if (modalContainer) {
+    modalContainer.style.opacity = '0';
+    modalContainer.querySelector('div').style.transform = 'translateY(-20px)';
+    modalContainer.addEventListener('transitionend', function handler() {
+      modalContainer.style.visibility = 'hidden';
+      modalContainer.removeEventListener('transitionend', handler);
+    }, { once: true });
+  }
+}
+
+function showMessageModal(message) {
+  showModal(message, 'message');
+}
+
+function showConfirmationModal(message, onConfirmCallback) {
+  showModal(message, 'confirm', onConfirmCallback);
+}
+
+
+  </script>
+</body>
+</html>
