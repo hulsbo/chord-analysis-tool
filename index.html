@@ -595,7 +595,7 @@
 
 			async function fetchAndSaveSongs() {
 				try {
-					const response = await fetch('/jazz_songs_data.json');
+					const response = await fetch('jazz_songs_data.json');
 					const data = await response.json();
 					saveSongs(data);
 					renderSongs();
