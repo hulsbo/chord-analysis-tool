@@ -277,38 +277,6 @@
 				color: var(--subtle-text);
 			}
 
-			/* --- Edit Form --- */
-			.edit-form {
-				display: none;
-				background: #f8f9fa;
-				padding: 1em;
-				border-top: 1px solid var(--border-color);
-			}
-			.edit-form.active {
-				display: block;
-			}
-			.edit-form input[type='text'] {
-				padding: 0.5em;
-				border-radius: 3px;
-				border: 1px solid var(--border-color);
-				font-size: 0.9em;
-				width: 100%;
-				box-sizing: border-box;
-				margin-bottom: 0.75em; /* Added margin for consistency */
-			}
-			.edit-section-field {
-				display: grid;
-				grid-template-columns: 1fr 2fr auto;
-				gap: 0.5em;
-				align-items: center;
-				margin-bottom: 0.5em;
-			}
-			.edit-actions {
-				margin-top: 1em;
-				display: flex;
-				gap: 0.5em;
-			}
-
 			/* --- Help Text --- */
 			.help-text {
 				font-size: 0.85em;
@@ -735,23 +703,11 @@
 				const div = document.createElement('div');
 				div.className = 'section-field';
 				div.innerHTML = `
-    <input type="text" class="section-label" placeholder="Section (e.g. A, B)" value="${label}" required>
-    <input type="text" class="section-chords" placeholder="Chords (e.g. Cmaj7 - Dm7 G7)" value="${chords}" required>
-    <button type="button" class="btn btn-discreet remove-section-btn">Remove</button>
+                    <input type="text" class="section-label" placeholder="Section (e.g. A, B)" value="${label}" required>
+                    <input type="text" class="section-chords" placeholder="Chords (e.g. Cmaj7 - Dm7 G7)" value="${chords}" required>
+                    <button type="button" class="btn btn-discreet remove-section-btn">Remove</button>
   `;
 				div.querySelector('.remove-section-btn').onclick = () => div.remove();
-				return div;
-			}
-
-			function createEditSectionField(label = '', chords = '') {
-				const div = document.createElement('div');
-				div.className = 'edit-section-field';
-				div.innerHTML = `
-    <input type="text" class="edit-section-label" placeholder="Section" value="${label}" required>
-    <input type="text" class="edit-section-chords" placeholder="Chords (use - for same chord)" value="${chords}" required>
-    <button type="button" class="btn btn-discreet remove-edit-section-btn">Remove</button>
-  `;
-				div.querySelector('.remove-edit-section-btn').onclick = () => div.remove();
 				return div;
 			}
 
@@ -894,19 +850,6 @@
         </div>
       </div>
       <div class="song-details"></div>
-      <div class="edit-form" id="edit-form-${idx}">
-        <h3>Edit Song</h3>
-        <input type="text" class="edit-title" value="${song.title}" placeholder="Song Title" required>
-        <input type="text" class="edit-standard-key" value="${
-					song.standardKey || ''
-				}" placeholder="Standard Key (e.g., C, G, Bb)">
-        <div class="edit-sections-container"></div>
-        <div class="edit-actions">
-          <button type="button" class="btn btn-discreet add-edit-section-btn">Add Section</button>
-          <button type="button" class="btn btn-primary save-edit-btn" data-idx="${idx}">Save Changes</button>
-          <button type="button" class="btn btn-discreet cancel-edit-btn" data-idx="${idx}">Cancel</button>
-        </div>
-      </div>
     `;
 
 					songDiv.querySelector('.song-main').onclick = function (e) {
@@ -924,84 +867,11 @@
 							details.innerHTML = '';
 						}
 					};
-
 					songDiv.onkeydown = function (e) {
 						if (e.key === 'Enter') {
 							e.preventDefault();
 							songDiv.querySelector('.song-main').click();
 						}
-					};
-
-					const editForm = songDiv.querySelector('.edit-form');
-					const editSectionsContainer = editForm.querySelector('.edit-sections-container');
-					song.sections.forEach((section) => {
-						editSectionsContainer.appendChild(
-							createEditSectionField(section.label, Array.isArray(section.chords) ? section.chords.join(' ') : '')
-						);
-					});
-					editForm.querySelector('.add-edit-section-btn').onclick = function () {
-						editSectionsContainer.appendChild(createEditSectionField());
-					};
-					editForm.querySelector('.save-edit-btn').onclick = function () {
-						const title = editForm.querySelector('.edit-title').value.trim();
-						const standardKey = editForm.querySelector('.edit-standard-key').value.trim();
-						const sectionDivs = Array.from(editForm.querySelectorAll('.edit-section-field'));
-						const sections = sectionDivs
-							.map((div) => ({
-								label: div.querySelector('.edit-section-label').value.trim(),
-								chords: div
-									.querySelector('.edit-section-chords')
-									.value.trim()
-									.split(/\s+/)
-									.filter((x) => x),
-							}))
-							.filter((sec) => sec.label && sec.chords.length > 0);
-
-						if (!title || sections.length === 0) {
-							showMessageModal('Please provide a song title and at least one valid section.');
-							return;
-						}
-						const songs = loadSongs();
-						songs[idx] = { title, sections, standardKey }; // Save standardKey
-						saveSongs(songs);
-
-						// Update transpose state for this song after editing key
-						const newOriginalKeyInput = standardKey ? standardKey.trim() : '';
-						const lookupKey = formatKeyForLookup(newOriginalKeyInput);
-						const newOriginalKeyNum = NOTE_TO_NUM[lookupKey];
-
-						let initialOriginalKey = newOriginalKeyInput;
-						let initialCurrentKey = newOriginalKeyInput;
-						let isValidOriginalKey = true;
-
-						if (newOriginalKeyInput && newOriginalKeyNum === undefined) {
-							showMessageModal(
-								`Warning: Standard key "${newOriginalKeyInput}" for song "${title}" is not recognized. Transpose functions will be limited.`
-							);
-							initialOriginalKey = newOriginalKeyInput;
-							initialCurrentKey = 'Key Error';
-							isValidOriginalKey = false;
-						} else if (!newOriginalKeyInput) {
-							initialOriginalKey = 'N/A';
-							initialCurrentKey = 'N/A';
-							isValidOriginalKey = false;
-						} else {
-							// If valid, ensure currentKey is the properly formatted key string
-							initialCurrentKey = calculateNewKeyName(newOriginalKeyNum, 0); // Use calculateNewKeyName to get preferred display
-						}
-
-						songTransposeStates.set(idx, {
-							semitones: 0,
-							currentKey: initialCurrentKey,
-							originalKey: initialOriginalKey,
-							isValid: isValidOriginalKey,
-							originalKeyNum: newOriginalKeyNum,
-						});
-
-						renderSongs(); // Re-render all songs to reflect changes
-					};
-					editForm.querySelector('.cancel-edit-btn').onclick = function () {
-						editForm.classList.remove('active');
 					};
 					songDiv.querySelector('.delete-btn').onclick = function (e) {
 						e.stopPropagation();
@@ -1027,7 +897,7 @@
 			 * @param {object} song - The song object to load into the form.
 			 */
 			function onEditBtnClick(song) {
-				showConfirmationModal('This will erase all fields in Add new song form, OK?', () => {
+				showConfirmationModal('This will erase all custom songs, OK?', () => {
 					// Populate Add New Song form with the song's data
 					const titleInput = document.getElementById('song-title');
 					const standardKeyInput = document.getElementById('song-standard-key');
