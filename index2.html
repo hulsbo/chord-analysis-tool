@@ -288,6 +288,7 @@
   <div class="header-container">
     <h1>Jazz Chord Interval Analyzer</h1>
     <div class="header-buttons">
+      <button type="button" id="load-default-songs-btn" class="btn btn-primary">Load Default Songs</button>
       <button type="button" id="import-songs-btn" class="btn btn-primary">Import Songs</button>
       <button type="button" id="export-songs-btn" class="btn btn-primary">Export Songs</button>
       <input type="file" id="import-file-input" accept=".json" style="display: none;">
@@ -569,6 +570,24 @@ function intervalFrequency(intervals) {
     }
   });
   return freq;
+}
+
+// --- START-UP FETCH ---
+
+async function fetchAndSaveSongs() {
+try {
+	const response = await fetch('/jazz_songs_data.json');
+	const data = await response.json();
+	saveSongs(data);
+	renderSongs();
+	showMessageModal('Songs imported successfully!'); // Use custom modal
+} catch (error) {
+	console.error('Failed to fetch JSON:', error);
+}
+}
+
+function loadDefaultSongs() {
+	showConfirmationModal('Warning, this replaces any edits you\'ve done to pre-existing songs unless renamed.', fetchAndSaveSongs);
 }
 
 // --- LOCAL STORAGE FUNCTIONS ---
@@ -1262,6 +1281,7 @@ window.onload = function() {
   // Attach event listeners for import/export buttons after DOM is loaded
   document.getElementById('export-songs-btn').onclick = exportSongs;
   document.getElementById('import-songs-btn').onclick = importSongs;
+  document.getElementById('load-default-songs-btn').onclick = loadDefaultSongs;
 };
 
 // --- GLOBAL INTERVAL STATS ---
